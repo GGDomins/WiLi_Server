@@ -15,10 +15,7 @@ import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,37 +54,44 @@ public class ProductService {
 
     public List<String> getImagesByMember(String snsId) throws IOException {
         List<String> imageKeyList = getImagesKeysByMember(snsId);
+        log.info(imageKeyList.toString());
+        log.info("imageInfo");
         try {
             List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
             if (images.isEmpty()) {
                 return null;
             }
-        List<String> imageStrings = images.stream()
-                .map(b -> Base64.getEncoder().encodeToString(b))
-                .collect(Collectors.toList());
-            return imageStrings;
-    } catch (Exception e) {
+            List<String> imageStringList = new ArrayList<>();
+            for (byte[] imageBytes : images) {
+                // 바이트 배열을 Base64로 인코딩하여 문자열로 변환합니다.
+                String encodedImage = java.util.Base64.getEncoder().encodeToString(imageBytes);
+                imageStringList.add(encodedImage);
+            }
+            return imageStringList;
+        } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return new ArrayList<>();
     }
-
     public List<String> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
         log.info(postList.toString());
         log.info("postInfo");
+        List<String> postJsonList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> postJsons = postList.stream()
-                .map(post -> {
-                    try {
-                        return objectMapper.writeValueAsString(post);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .collect(Collectors.toList());
-        return postJsons;
+        try {
+            // postList의 각 Post 객체를 JSON 문자열로 변환하여 postJsonList에 추가합니다.
+            for (Post post : postList) {
+                String json = objectMapper.writeValueAsString(post);
+                postJsonList.add(json);
+            }
+            log.info(postJsonList.toString());
+            log.info("postjsonList");
+            return postJsonList;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

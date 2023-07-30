@@ -77,21 +77,24 @@ public class ProductService {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
         log.info(postList.toString());
         log.info("postInfo");
-        List<String> postJsonList = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // postList의 각 Post 객체를 JSON 문자열로 변환하여 postJsonList에 추가합니다.
-            for (Post post : postList) {
-                String json = objectMapper.writeValueAsString(post);
-                postJsonList.add(json);
-            }
-            log.info(postJsonList.toString());
-            log.info("postjsonList");
-            return postJsonList;
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
+
+        List<String> postJsonList = postList.stream()
+                .map(post -> {
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        return objectMapper.writeValueAsString(post);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(json -> json != null)
+                .collect(Collectors.toList());
+
+        log.info(postJsonList.toString());
+        log.info("postjsonList");
+
+        return postJsonList;
     }
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

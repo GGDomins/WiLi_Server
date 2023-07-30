@@ -48,7 +48,7 @@ public class ProductService {
     public List<String> getImagesKeysByMember(String snsId) {
         List<String> imageList =  productRepository.findImageKeysBysnsId(snsId);
         if (imageList.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
             return imageList;
     }
@@ -64,7 +64,7 @@ public class ProductService {
     }
 
     public String getPostByMember(String snsId) {
-        List<Post> postList = productRepository.findPostBySnsId(snsId);
+        String postList = productRepository.findPostBySnsId(snsId);
         return postList.toString();
     }
     private void savePost(PostDto productInfo, String snsId) {

@@ -28,7 +28,6 @@ public class ProductService {
     private final MemberService memberService;
 
     public void addProduct(MultipartFile file, String productInfoJson, String snsId) {
-
         ObjectMapper objectMapper = new ObjectMapper();
         PostDto productInfo = null;
         try {

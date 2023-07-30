@@ -74,6 +74,8 @@ public class ProductService {
 
     public List<String> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
+        log.info(postList.toString());
+        log.info("postInfo");
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> postJsons = postList.stream()
                 .map(post -> {
@@ -85,7 +87,6 @@ public class ProductService {
                     }
                 })
                 .collect(Collectors.toList());
-
         return postJsons;
     }
     private void savePost(PostDto productInfo, String snsId) {

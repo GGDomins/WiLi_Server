@@ -18,7 +18,9 @@ import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -102,7 +104,11 @@ public class ProductController {
                 } else if (StatusResult == StatusCode.OK) {
                     List<String> images = productService.getImagesByMember(snsId);
                     List<String> postList = productService.getPostByMember(snsId);
-                    return ResponseEntity.ok().body("images: " + images + " posts: " + postList);
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("images", images);
+                    response.put("posts", postList);
+                    return ResponseEntity.ok().body(response);
                 } else {
                     return createBadRequestResponse("잘못된 요청입니다");
                 }

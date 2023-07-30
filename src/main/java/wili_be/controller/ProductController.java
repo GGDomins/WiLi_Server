@@ -120,8 +120,8 @@ public class ProductController {
                 if (StatusResult == StatusCode.UNAUTHORIZED) {
                     return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
                 } else if (StatusResult == StatusCode.OK) {
-                    String images = productService.getImagesByMember(snsId);
-                    String postList = productService.getPostByMember(snsId);
+                    List<String> images = productService.getImagesByMember(snsId);
+                    List<String> postList = productService.getPostByMember(snsId);
                     return ResponseEntity.ok().body("images: " + images + " posts: " + postList);
                 } else {
                     return createBadRequestResponse("잘못된 요청입니다");

@@ -15,9 +15,11 @@ import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -53,19 +55,38 @@ public class ProductService {
             return imageList;
     }
 
-    public String getImagesByMember(String snsId) throws IOException {
+    public List<String> getImagesByMember(String snsId) throws IOException {
         List<String> imageKeyList = getImagesKeysByMember(snsId);
-        List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
-        if (images.isEmpty()) {
+        try {
+            List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
+            if (images.isEmpty()) {
+                return null;
+            }
+        List<String> imageStrings = images.stream()
+                .map(b -> Base64.getEncoder().encodeToString(b))
+                .collect(Collectors.toList());
+            return imageStrings;
+    } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
-        return images.toString();
-
     }
 
-    public String getPostByMember(String snsId) {
+    public List<String> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
-        return postList.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> postJsons = postList.stream()
+                .map(post -> {
+                    try {
+                        return objectMapper.writeValueAsString(post);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        return postJsons;
     }
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

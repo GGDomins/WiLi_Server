@@ -112,6 +112,7 @@ public class ProductController {
     ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        try {
             if (accessToken == null) {
                 return createUnauthorizedResponse("접근 토큰이 없습니다");
             } else {
@@ -121,16 +122,15 @@ public class ProductController {
                 } else if (StatusResult == StatusCode.OK) {
                     String images = productService.getImagesByMember(snsId);
                     String postList = productService.getPostByMember(snsId);
-
-                    if (images == null && postList == null) {
-                        return ResponseEntity.status(HttpStatus.OK)
-                                .body("result: none");
-                    }
                     return ResponseEntity.ok().body("images: " + images + " posts: " + postList);
                 } else {
                     return createBadRequestResponse("잘못된 요청입니다");
                 }
             }
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("result: none");
+        }
     }
 
 

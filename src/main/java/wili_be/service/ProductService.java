@@ -64,7 +64,7 @@ public class ProductService {
     }
 
     public String getPostByMember(String snsId) {
-        String postList = productRepository.findPostBySnsId(snsId);
+        List<Post> postList = productRepository.findPostBySnsId(snsId);
         return postList.toString();
     }
     private void savePost(PostDto productInfo, String snsId) {

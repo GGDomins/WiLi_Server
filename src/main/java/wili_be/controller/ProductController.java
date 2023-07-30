@@ -88,26 +88,6 @@ public class ProductController {
             }
         }
     }
-
-    @PostMapping("/users/products")
-    ResponseEntity<?> getImageKeysByUser(HttpServletRequest httpRequest) {
-        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
-        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-
-        if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
-        } else {
-            StatusResult = tokenService.validateAccessToken(accessToken);
-            if (StatusResult == StatusCode.UNAUTHORIZED) {
-                return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
-            } else if (StatusResult == StatusCode.OK) {
-                List<String> imageList = productService.getImagesKeysByMember(snsId);
-                return ResponseEntity.ok().body(imageList);
-            } else {
-                return createBadRequestResponse("잘못된 요청입니다");
-            }
-        }
-    }
     @GetMapping("/users/products")
     ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);

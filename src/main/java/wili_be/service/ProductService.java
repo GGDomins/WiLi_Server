@@ -53,19 +53,19 @@ public class ProductService {
             return imageList;
     }
 
-    public List<byte[]> getImagesByMember(String snsId) throws IOException {
+    public String getImagesByMember(String snsId) throws IOException {
         List<String> imageKeyList = getImagesKeysByMember(snsId);
         List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
         if (images.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
-        return images;
+        return images.toString();
 
     }
 
-    public List<Post> getPostByMember(String snsId) {
+    public String getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
-        return postList;
+        return postList.toString();
     }
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

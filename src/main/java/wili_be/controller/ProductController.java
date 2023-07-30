@@ -119,15 +119,14 @@ public class ProductController {
                 if (StatusResult == StatusCode.UNAUTHORIZED) {
                     return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
                 } else if (StatusResult == StatusCode.OK) {
-                    List<byte[]> images = productService.getImagesByMember(snsId);
-                    List<Post> postList = productService.getPostByMember(snsId);
-                    log.info(images.toString());
-                    log.info(postList.toString());
-                    if (images.isEmpty() && postList.isEmpty()) {
+                    String images = productService.getImagesByMember(snsId);
+                    String postList = productService.getPostByMember(snsId);
+
+                    if (images == null && postList == null) {
                         return ResponseEntity.status(HttpStatus.OK)
                                 .body("result: none");
                     }
-                    return ResponseEntity.ok().body("images: " + images.toString() + "posts: " + postList.toString());
+                    return ResponseEntity.ok().body("images: " + images + " posts: " + postList);
                 } else {
                     return createBadRequestResponse("잘못된 요청입니다");
                 }

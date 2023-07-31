@@ -14,4 +14,6 @@ public interface ProductRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Member m JOIN m.posts p WHERE m.snsId = :snsId")
     List<Post> findPostBySnsId(@Param("snsId") String snsId);
+
+    Post findPostById(Long Id);
 }

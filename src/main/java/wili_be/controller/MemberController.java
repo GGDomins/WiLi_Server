@@ -25,22 +25,25 @@ public class MemberController {
     private final TokenService tokenService;
     private int StatusResult;
     @PostMapping("/users/auth")
-    ResponseEntity<String> ValidateAccessToken(HttpServletRequest httpRequest) {
+    ResponseEntity<String> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
-        } else {
-            StatusResult = tokenService.validateAccessToken(accessToken);
-            if (StatusResult == StatusCode.UNAUTHORIZED) {
-                return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
-            } else if (StatusResult == StatusCode.OK) {
-                return ResponseEntity.ok().body("정상적인 접근입니다");
-            } else {
-                return createBadRequestResponse("잘못된 요청입니다");
-            }
         }
+
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+
+        if (StatusResult == StatusCode.OK) {
+            return ResponseEntity.ok().body("정상적인 접근입니다");
+        }
+        return createBadRequestResponse("잘못된 요청입니다");
     }
+
 
     private ResponseEntity<String> createUnauthorizedResponse(String message) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

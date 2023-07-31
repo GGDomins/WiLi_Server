@@ -54,7 +54,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         return ResponseEntity.ok()
                 .contentLength(s3Object.getObjectMetadata().getContentLength())
                 .contentType(MediaType.parseMediaType(s3Object.getObjectMetadata().getContentType()))
-                .cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS)) // キャッシュ設定
+                .cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
                 .body(new InputStreamResource(s3Object.getObjectContent()));
     }
 

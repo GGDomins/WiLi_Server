@@ -90,10 +90,25 @@ public class ProductService {
                 .filter(json -> json != null)
                 .collect(Collectors.toList());
 
-        log.info(postJsonList.toString());
-        log.info("postjsonList");
-
         return postJsonList;
+    }
+
+    public String getPostFromId(Long id) {
+        Post post = productRepository.findPostById(id);
+
+        if (post == null) {
+            log.info("post의 값이 null입니다.");
+            return null;
+        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String postJson = objectMapper.writeValueAsString(post);
+            return postJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

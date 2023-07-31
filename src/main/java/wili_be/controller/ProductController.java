@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
 import wili_be.dto.ImageRequestDto;
+import wili_be.dto.PostIdDto;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
@@ -112,8 +113,8 @@ public class ProductController {
         response.put("posts", postList);
         return ResponseEntity.ok().body(response);
     }
-    @GetMapping("/get/products")
-    ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@RequestParam("id") Long Id) throws IOException {
+    @GetMapping("/products/info")
+    ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@RequestBody PostIdDto postIdDto) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -127,6 +128,7 @@ public class ProductController {
         if (StatusResult != StatusCode.OK) {
             return createBadRequestResponse("잘못된 요청입니다");
         }
+        Long Id = postIdDto.getId();
         String JsonPost = productService.getPostFromId(Id);
         return ResponseEntity.ok().body(JsonPost);
     }

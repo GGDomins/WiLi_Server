@@ -38,13 +38,10 @@ public class ProductController {
         log.info(file.getContentType());
         log.info(file.getOriginalFilename());
         try {
-            // File을 AmazonS3Service를 사용하여 S3 버킷에 업로드
             String fileName = file.getOriginalFilename();
             String key = amazonS3Service.putObject(file, fileName);
-            // 업로드 성공 응답
             return ResponseEntity.status(HttpStatus.OK).body("key: " + key);
         } catch (Exception e) {
-            // 업로드 실패 시 에러 응답
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed: " + e.getMessage());
         }
     }
@@ -74,50 +71,48 @@ public class ProductController {
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(@RequestParam("file") MultipartFile file, @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
-        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
 
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
-        } else {
-            StatusResult = tokenService.validateAccessToken(accessToken);
-            if (StatusResult == StatusCode.UNAUTHORIZED) {
-                return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
-            } else if (StatusResult == StatusCode.OK) {
-                productService.addProduct(file, productInfoJson, snsId);
-                return ResponseEntity.ok("Product added successfully.");
-            } else {
-                return createBadRequestResponse("잘못된 요청입니다");
-            }
         }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
+        }
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        productService.addProduct(file, productInfoJson, snsId);
+        return ResponseEntity.ok("Product added successfully.");
     }
+
     @GetMapping("/users/products")
     ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
-        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-        try {
-            if (accessToken == null) {
-                return createUnauthorizedResponse("접근 토큰이 없습니다");
-            } else {
-                StatusResult = tokenService.validateAccessToken(accessToken);
-                if (StatusResult == StatusCode.UNAUTHORIZED) {
-                    return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
-                } else if (StatusResult == StatusCode.OK) {
-                    List<String> images = productService.getImagesByMember(snsId);
-                    List<String> postList = productService.getPostByMember(snsId);
 
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("images", images);
-                    response.put("posts", postList);
-                    return ResponseEntity.ok().body(response);
-                } else {
-                    return createBadRequestResponse("잘못된 요청입니다");
-                }
-            }
-        } catch (NullPointerException e) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("result: none");
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
         }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
+        }
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        List<String> images = productService.getImagesByMember(snsId);
+        List<String> postList = productService.getPostByMember(snsId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("images", images);
+        response.put("posts", postList);
+        return ResponseEntity.ok().body(response);
     }
+
 
 
     private ResponseEntity<String> createUnauthorizedResponse(String message) {

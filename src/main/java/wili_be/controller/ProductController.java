@@ -113,7 +113,7 @@ public class ProductController {
         response.put("posts", postList);
         return ResponseEntity.ok().body(response);
     }
-    @GetMapping("/products/info/{Id}")
+    @GetMapping("/products/{Id}")
     ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@PathVariable("Id") Long Id) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.client.HttpClientErrorException;
-import wili_be.dto.MemberDto;
 import wili_be.dto.TokenDto;
 
 import wili_be.entity.LoginProvider;
@@ -61,7 +60,6 @@ public class OAuthController {
                         .header("www-authenticate")
                         .body(jsonMemberDto);
             }
-
             TokenDto tokenDto = tokenService.createTokens(userInfo.getId());
             String accessToken = tokenDto.getAccessToken();
             String refreshToken = tokenDto.getRefreshToken();

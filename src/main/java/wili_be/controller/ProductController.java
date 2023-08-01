@@ -113,8 +113,8 @@ public class ProductController {
         response.put("posts", postList);
         return ResponseEntity.ok().body(response);
     }
-    @GetMapping("/products/info")
-    ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@RequestBody PostIdDto postIdDto) throws IOException {
+    @GetMapping("/products/info/{Id}")
+    ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@PathVariable("Id") Long Id) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -128,7 +128,6 @@ public class ProductController {
         if (StatusResult != StatusCode.OK) {
             return createBadRequestResponse("잘못된 요청입니다");
         }
-        Long Id = postIdDto.getId();
         String JsonPost = productService.getPostFromId(Id);
         return ResponseEntity.ok().body(JsonPost);
     }

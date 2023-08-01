@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface MemberService{
     ResponseCookie createHttpOnlyCookie(String refreshToken);
     UserDetails loadUserByUsername(String snsId) throws UsernameNotFoundException;
-    void saveIfNotExists(Member_info_Dto memberInfoDto);
     Optional<Member> findUserBySnsId(String sns_id);
+    String changeToJson(Member_info_Dto memberInfoDto);
+    Member saveUser(MemberDto.AdditionalSignupInfo memberDto);
     }

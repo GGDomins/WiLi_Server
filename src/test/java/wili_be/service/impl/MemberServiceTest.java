@@ -39,32 +39,32 @@ public class MemberServiceTest {
         memberDto.setSnsId("google123");
     }
 
-    @Test
-    void saveIfNotExists_Should_SaveMember_When_MemberNotExists() {
-        // Given
-        when(memberRepository.findBySnsId(anyString())).thenReturn(Optional.empty());
-        when(memberRepository.save(any(Member.class))).thenReturn(new Member());
-
-        // When
-        memberService.saveIfNotExists(memberDto);
-
-        // Then
-        verify(memberRepository, times(1)).findBySnsId(memberDto.getSnsId());
-        verify(memberRepository, times(1)).save(any(Member.class));
-    }
-
-    @Test
-    void saveIfNotExists_Should_NotSaveMember_When_MemberExists() {
-        // Given
-        when(memberRepository.findBySnsId(anyString())).thenReturn(Optional.of(new Member()));
-
-        // When
-        memberService.saveIfNotExists(memberDto);
-
-        // Then
-        verify(memberRepository, times(1)).findBySnsId(memberDto.getSnsId());
-        verify(memberRepository, never()).save(any(Member.class));
-    }
+//    @Test
+//    void saveIfNotExists_Should_SaveMember_When_MemberNotExists() {
+//        // Given
+//        when(memberRepository.findBySnsId(anyString())).thenReturn(Optional.empty());
+//        when(memberRepository.save(any(Member.class))).thenReturn(new Member());
+//
+//        // When
+//        memberService.saveIfNotExists(memberDto);
+//
+//        // Then
+//        verify(memberRepository, times(1)).findBySnsId(memberDto.getSnsId());
+//        verify(memberRepository, times(1)).save(any(Member.class));
+//    }
+//
+//    @Test
+//    void saveIfNotExists_Should_NotSaveMember_When_MemberExists() {
+//        // Given
+//        when(memberRepository.findBySnsId(anyString())).thenReturn(Optional.of(new Member()));
+//
+//        // When
+//        memberService.saveIfNotExists(memberDto);
+//
+//        // Then
+//        verify(memberRepository, times(1)).findBySnsId(memberDto.getSnsId());
+//        verify(memberRepository, never()).save(any(Member.class));
+//    }
 
     @Test
     void loadUserByUsername_Should_ReturnUserDetails_When_MemberExists() {

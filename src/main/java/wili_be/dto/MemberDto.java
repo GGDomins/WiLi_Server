@@ -28,19 +28,24 @@ public class MemberDto {
                     .build();
         }
     }
-
-
     @Getter
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class SocialMemberInfoDto {
         private String id;
         private String nickname;
         private String email;
 
-        public SocialMemberInfoDto(String id, String nickname, String email) {
-            this.id = id;
-            this.nickname = nickname;
-            this.email = email;
-        }
+    }
+
+    @Getter
+    @Builder
+    public static class AdditionalSignupInfo {
+        private String name;
+        private String email;
+        private LoginProvider loginProvider;
+        private String snsId;
+        private String username;
+        private String birthday;
     }
 }

@@ -26,6 +26,9 @@ import wili_be.dto.MemberDto.SocialMemberInfoDto;
 import wili_be.dto.MemberDto.Member_info_Dto;
 
 import java.io.IOException;
+import java.util.Optional;
+
+import static wili_be.dto.MemberDto.*;
 
 /**
  * Handles requests for the application home page.
@@ -50,8 +53,14 @@ public class OAuthController {
             oauthToken = naverLoginBO.getAccessToken(code, state);
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.NAVER, userInfo.getId());
-            memberService.saveIfNotExists(memberDto);
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.KAKAO, userInfo.getId());
+            String jsonMemberDto = memberService.changeToJson(memberDto);
+            Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
+            if (memberOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("www-authenticate")
+                        .body(jsonMemberDto);
+            }
 
             TokenDto tokenDto = tokenService.createTokens(userInfo.getId());
             String accessToken = tokenDto.getAccessToken();
@@ -88,8 +97,13 @@ public class OAuthController {
             SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
 
             Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.KAKAO, userInfo.getId());
-            memberService.saveIfNotExists(memberDto);
-
+            String jsonMemberDto = memberService.changeToJson(memberDto);
+            Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
+            if (memberOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("www-authenticate")
+                        .body(jsonMemberDto);
+            }
             TokenDto tokenDto = tokenService.createTokens(userInfo.getId());
             String accessToken = tokenDto.getAccessToken();
             String refreshToken = tokenDto.getRefreshToken();
@@ -104,6 +118,25 @@ public class OAuthController {
         } catch (Exception ex) {
             // 그 외 모든 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred during Kakao login: " + ex.getMessage());
+        }
+    }
+
+    @PostMapping("/users/signup")
+    ResponseEntity<String> additionalSignUp(@RequestBody AdditionalSignupInfo additionalSignupInfo) {
+        try {
+            memberService.saveUser(additionalSignupInfo);
+            TokenDto tokenDto = tokenService.createTokens(additionalSignupInfo.getSnsId());
+            String accessToken = tokenDto.getAccessToken();
+            String refreshToken = tokenDto.getRefreshToken();
+            ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                    .header("accessToken",accessToken)
+                    .body("signup SuccessFul");
+
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("additionalSignupInfo is null");
         }
     }
 }

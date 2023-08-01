@@ -21,6 +21,8 @@ public class Member implements UserDetails {
     private Long id;
 
     private String name;
+    private String username;
+    private String birthday;
     private String email;
     private String snsId;
     @Enumerated(EnumType.STRING)

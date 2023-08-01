@@ -95,12 +95,10 @@ public class ProductService {
 
     public String getPostFromId(Long id) {
         Post post = productRepository.findPostById(id);
-
         if (post == null) {
             log.info("post의 값이 null입니다.");
             return null;
         }
-
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String postJson = objectMapper.writeValueAsString(post);

@@ -53,7 +53,7 @@ public class OAuthController {
             oauthToken = naverLoginBO.getAccessToken(code, state);
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.KAKAO, userInfo.getId());
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.NAVER, userInfo.getId());
             String jsonMemberDto = memberService.changeToJson(memberDto);
             Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {

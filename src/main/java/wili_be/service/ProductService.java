@@ -2,6 +2,7 @@ package wili_be.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lettuce.core.StrAlgoArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -50,7 +51,7 @@ public class ProductService {
             return imageList;
     }
 
-    public List<String> getImagesByMember(String snsId) throws IOException {
+    public List<byte[]> getImagesByMember(String snsId) throws IOException {
         List<String> imageKeyList = getImagesKeysByMember(snsId);
         log.info(imageKeyList.toString());
         log.info("imageInfo");
@@ -59,36 +60,17 @@ public class ProductService {
             if (images.isEmpty()) {
                 return null;
             }
-            List<String> imageStringList = new ArrayList<>();
-            for (byte[] imageBytes : images) {
-                // 바이트 배열을 Base64로 인코딩하여 문자열로 변환합니다.
-                String encodedImage = java.util.Base64.getEncoder().encodeToString(imageBytes);
-                imageStringList.add(encodedImage);
-            }
-            return imageStringList;
+            return images;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
     }
-    public List<String> getPostByMember(String snsId) {
+    public List<PostResponseDto> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
-        List<PostResponseDto> responseDtos = postList.stream().map(PostResponseDto::new).collect(Collectors.toList());
+        List<PostResponseDto> postResponseDtoListt = postList.stream().map(PostResponseDto::new).collect(Collectors.toList());
 
-        List<String> postJsonList = responseDtos.stream()
-                .map(post -> {
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        return objectMapper.writeValueAsString(post);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(json -> json != null)
-                .collect(Collectors.toList());
-
-        return postJsonList;
+        return postResponseDtoListt;
     }
 
     public PostResponseDto getPostFromId(Long id) {
@@ -144,6 +126,31 @@ public class ProductService {
         }
     }
 
+    public List<String> changeByteToJson(List<byte[]> bytes) {
+        List<String> jsonList = new ArrayList<>();
+        for (byte[] imageBytes : bytes) {
+            // 바이트 배열을 Base64로 인코딩하여 문자열로 변환합니다.
+            String encodedImage = java.util.Base64.getEncoder().encodeToString(imageBytes);
+            jsonList.add(encodedImage);
+        }
+        return jsonList;
+    }
+
+    public List<String> changePostDtoToJson(List<PostResponseDto> postResponseDtoList) {
+        List<String> postJsonList = postResponseDtoList.stream()
+                .map(postResponseDto -> {
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        return objectMapper.writeValueAsString(postResponseDto);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(json -> json != null)
+                .collect(Collectors.toList());
+        return postJsonList;
+    }
 
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

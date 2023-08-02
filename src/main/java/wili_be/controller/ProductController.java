@@ -107,12 +107,15 @@ public class ProductController {
             return createBadRequestResponse("잘못된 요청입니다");
         }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-        List<String> images = productService.getImagesByMember(snsId);
-        List<String> postList = productService.getPostByMember(snsId);
+        List<byte[]> images = productService.getImagesByMember(snsId);
+        List<PostResponseDto> postList = productService.getPostByMember(snsId);
+
+        List<String> image_json = productService.changeByteToJson(images);
+        List<String> post_json = productService.changePostDtoToJson(postList);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("images", images);
-        response.put("posts", postList);
+        response.put("images", image_json);
+        response.put("posts", post_json);
         return ResponseEntity.ok().body(response);
     }
     @GetMapping("/products/{Id}")

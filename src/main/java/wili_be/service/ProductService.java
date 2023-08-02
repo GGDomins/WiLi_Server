@@ -112,21 +112,31 @@ public class ProductService {
     public Post updatePost(Long postId, PostUpdateDto postUpdateDto) {
         Post post = productRepository.findPostById(postId);
 
+        if (post == null) {
+            // 요청한 postId에 해당하는 Post가 없으면 예외 처리
+            throw new NoSuchElementException("해당하는 게시물을 찾을 수 없습니다.");
+        }
         // 요청으로 받은 필드들로 업데이트
-        Post newPost = Post.builder()
-                .productName(postUpdateDto.getProductName())
-                .brandName(postUpdateDto.getBrandName())
-                .category(postUpdateDto.getCategory())
-                .productPrice(postUpdateDto.getProductPrice())
-                .description(postUpdateDto.getDescription())
-                .link(postUpdateDto.getLink())
-                .imageKey(post.getImageKey())
-                .id(postId)
-                .member(post.getMember())
-                .build();
-
+        if (postUpdateDto.getBrandName() != null) {
+            post.setBrandName(postUpdateDto.getBrandName());
+        }
+        if (postUpdateDto.getProductName() != null) {
+            post.setProductName(postUpdateDto.getProductName());
+        }
+        if (postUpdateDto.getCategory() != null) {
+            post.setCategory(postUpdateDto.getCategory());
+        }
+        if (postUpdateDto.getProductPrice() != null) {
+            post.setProductPrice(postUpdateDto.getProductPrice());
+        }
+        if (postUpdateDto.getDescription() != null) {
+            post.setDescription(postUpdateDto.getDescription());
+        }
+        if (postUpdateDto.getLink() != null) {
+            post.setLink(postUpdateDto.getLink());
+        }
         // 업데이트된 게시물 저장
-        return productRepository.save(newPost);
+        return productRepository.save(post);
     }
 
     public String changeToJson(Post post) {

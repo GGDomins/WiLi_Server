@@ -2,10 +2,7 @@ package wili_be.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
@@ -32,3 +30,5 @@ public class Post {
     private String link;
     private String imageKey;
 }
+
+

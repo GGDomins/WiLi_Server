@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @Slf4j
@@ -132,20 +133,16 @@ public class ProductController {
         String JsonPost = productService.getPostFromId(Id);
         return ResponseEntity.ok().body(JsonPost);
     }
-    @PutMapping("/products/update/{PostId}")
-    ResponseEntity<String> validateAccessToken(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateDto postUpdateDto) {
+    @PatchMapping("/products/update/{PostId}")
+    ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
-
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
         }
-
         StatusResult = tokenService.validateAccessToken(accessToken);
-
         if (StatusResult == StatusCode.UNAUTHORIZED) {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
-
         if (StatusResult == StatusCode.OK) {
             Post updatePost = productService.updatePost(PostId, postUpdateDto);
             String jsonPost = productService.changeToJson(updatePost);

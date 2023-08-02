@@ -91,7 +91,7 @@ public class MemberController {
         return ResponseEntity.ok("set" + accessToken + "blackList");
     }
 
-    @DeleteMapping("/users/delete/{Id]")
+    @DeleteMapping("/users/delete/{Id}")
     public ResponseEntity<String> removeMember(@PathVariable String Id) {
         try {
             memberService.removeMember(Id);

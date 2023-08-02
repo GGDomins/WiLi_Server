@@ -9,9 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
-import wili_be.dto.ImageRequestDto;
-import wili_be.dto.PostIdDto;
-import wili_be.dto.PostUpdateDto;
+import wili_be.dto.ImageDto;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
@@ -23,7 +21,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+
+import static wili_be.dto.ImageDto.*;
+import static wili_be.dto.PostInfoDto.*;
 
 @RestController
 @Slf4j
@@ -130,11 +130,12 @@ public class ProductController {
         if (StatusResult != StatusCode.OK) {
             return createBadRequestResponse("잘못된 요청입니다");
         }
-        String JsonPost = productService.getPostFromId(Id);
+        PostResponseDto post = productService.getPostFromId(Id);
+        String JsonPost = productService.changeToJson(post);
         return ResponseEntity.ok().body(JsonPost);
     }
     @PatchMapping("/products/{PostId}")
-    ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateDto postUpdateDto) {
+    ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
@@ -144,7 +145,7 @@ public class ProductController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
         if (StatusResult == StatusCode.OK) {
-            Post updatePost = productService.updatePost(PostId, postUpdateDto);
+            PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
             String jsonPost = productService.changeToJson(updatePost);
             return ResponseEntity.ok(jsonPost);
         }

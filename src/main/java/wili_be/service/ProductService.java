@@ -6,18 +6,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import wili_be.dto.PostDto;
-import wili_be.dto.PostUpdateDto;
+import wili_be.dto.PostInfoDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
-import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static wili_be.dto.PostInfoDto.*;
 
 @Service
 @Slf4j
@@ -74,10 +73,9 @@ public class ProductService {
     }
     public List<String> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
-        log.info(postList.toString());
-        log.info("postInfo");
+        List<PostResponseDto> responseDtos = postList.stream().map(PostResponseDto::new).collect(Collectors.toList());
 
-        List<String> postJsonList = postList.stream()
+        List<String> postJsonList = responseDtos.stream()
                 .map(post -> {
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
@@ -93,23 +91,17 @@ public class ProductService {
         return postJsonList;
     }
 
-    public String getPostFromId(Long id) {
+    public PostResponseDto getPostFromId(Long id) {
         Post post = productRepository.findPostById(id);
-        if (post == null) {
+        PostResponseDto postResponseDto = new PostResponseDto(post);
+        if (postResponseDto == null) {
             log.info("post의 값이 null입니다.");
             return null;
         }
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String postJson = objectMapper.writeValueAsString(post);
-            return postJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return postResponseDto;
     }
 
-    public Post updatePost(Long postId, PostUpdateDto postUpdateDto) {
+    public PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto) {
         Post post = productRepository.findPostById(postId);
 
         if (post == null) {
@@ -135,11 +127,13 @@ public class ProductService {
         if (postUpdateDto.getLink() != null) {
             post.setLink(postUpdateDto.getLink());
         }
+        productRepository.save(post);
+        PostResponseDto postResponseDto = new PostResponseDto(post);
         // 업데이트된 게시물 저장
-        return productRepository.save(post);
+        return postResponseDto;
     }
 
-    public String changeToJson(Post post) {
+    public String changeToJson(PostResponseDto post) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String postJson = objectMapper.writeValueAsString(post);
@@ -149,6 +143,7 @@ public class ProductService {
             return null;
         }
     }
+
 
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);

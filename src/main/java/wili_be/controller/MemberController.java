@@ -6,6 +6,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import wili_be.controller.status.StatusCode;
 import wili_be.dto.TokenDto;
+import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.MemberService;
 import wili_be.service.RedisService;
@@ -13,6 +14,7 @@ import wili_be.service.TokenService;
 
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -87,5 +89,15 @@ public class MemberController {
         redisService.setAccessTokenBlackList(accessToken);
         log.info("logout");
         return ResponseEntity.ok("set" + accessToken + "blackList");
+    }
+
+    @DeleteMapping("/users/delete/{Id]")
+    public ResponseEntity<String> removeMember(@PathVariable String Id) {
+        try {
+            memberService.removeMember(Id);
+            return ResponseEntity.ok().body(Id + "님이 탈퇴하셨습니다.");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().body("존재하지 않는 회원입니다.");
+        }
     }
 }

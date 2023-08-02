@@ -15,32 +15,58 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import wili_be.dto.MemberDto.*;
 import wili_be.entity.LoginProvider;
 import wili_be.entity.Member;
+import wili_be.entity.Post;
 import wili_be.repository.MemberRepository;
+import wili_be.repository.ProductRepository;
 import wili_be.service.MemberService;
+import wili_be.service.ProductService;
 import wili_be.service.impl.MemberServiceImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     @InjectMocks
     private MemberServiceImpl memberService;
 
     private Member_info_Dto memberDto;
+    private Member member;
+    private List<Post> posts = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        Post post1 = Post.builder()
+                .brandName("Brand1")
+                .productName("Product1")
+                .category("Category1")
+                .productPrice("1000")
+                .description("Description1")
+                .link("Link1")
+                .imageKey("ImageKey1")
+                .build();
+        posts.add(post1);
+
         // 테스트 시작 전에 Member_info_Dto 객체를 초기화
         memberDto = new Member_info_Dto();
         memberDto.setName("kevin");
         memberDto.setEmail("kevin0928@naver.com");
         memberDto.setLoginProvider(LoginProvider.KAKAO);
         memberDto.setSnsId("qwer1234");
+        member = memberDto.to_Entity();
+        member = Member.builder()
+                .posts(posts)
+                .build();
     }
+
 
     @Test
     void saveUser_Should_ReturnSavedMember_When_ValidInputProvided() {
@@ -101,7 +127,6 @@ public class MemberServiceTest {
 
         // Then
         assertNotNull(json);
-        // Add more assertions if needed to check the contents of the JSON string
     }
 
     @Test
@@ -114,7 +139,6 @@ public class MemberServiceTest {
 
         // Then
         assertNotNull(cookie);
-        // Add more assertions if needed to check the contents of the ResponseCookie object
     }
 
     @Test
@@ -128,16 +152,17 @@ public class MemberServiceTest {
 
         // Then
         assertNotNull(userDetails);
-        assertEquals(member.getUsername(), userDetails.getUsername());
+        assertEquals(member.getEmail(), userDetails.getUsername());
     }
 
     @Test
-    void loadUserByUsername_Should_ThrowException_When_MemberNotExists() {
+    void removeMember_Should_ThrowNoSuchElementException_When_MemberNotExists() {
         // Given
-        String snsId = "qwer1234";
-        when(memberRepository.findBySnsId(anyString())).thenReturn(Optional.empty());
+        String nonExistentSnsId = "non_existent_sns_id";
+        when(memberRepository.findBySnsId(eq(nonExistentSnsId))).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UsernameNotFoundException.class, () -> memberService.loadUserByUsername(snsId));
+        assertThrows(NoSuchElementException.class, () -> memberService.removeMember(nonExistentSnsId));
     }
+
 }

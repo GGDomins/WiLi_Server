@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class ProductService {
     private final AmazonS3Service amazonS3Service;
     private final ProductRepository productRepository;

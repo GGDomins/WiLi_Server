@@ -2,7 +2,6 @@ package wili_be.service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 public interface RedisService {
     void setValues(String key, String value);
 

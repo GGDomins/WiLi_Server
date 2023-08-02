@@ -19,6 +19,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.service.AmazonS3Service;
 
@@ -36,6 +37,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     @Value("${aws.bucketName}")
     private String bucketName;
 
+    @Transactional
     public String putObject(MultipartFile file, String filename) {
         try {
             String key = UUID.randomUUID().toString() + "/" + filename;
@@ -48,7 +50,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException(e);
         }
     }
-
+    @Transactional
     public ResponseEntity<InputStreamResource> downloadObject(String key) {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
         return ResponseEntity.ok()
@@ -66,6 +68,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     }
 
     // 이미지 조회를 위한 메서드
+    @Transactional
     public byte[] getImageBytesByKey(String key) throws IOException {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
 
@@ -82,6 +85,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         }
     }
 
+    @Transactional
     public List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException {
         List<byte[]> imageBytesList = new ArrayList<>();
 

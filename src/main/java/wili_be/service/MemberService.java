@@ -10,11 +10,11 @@ import wili_be.dto.MemberDto.Member_info_Dto;
 import wili_be.entity.Member;
 
 import java.util.Optional;
-@Transactional
 public interface MemberService{
     ResponseCookie createHttpOnlyCookie(String refreshToken);
     UserDetails loadUserByUsername(String snsId) throws UsernameNotFoundException;
     Optional<Member> findUserBySnsId(String sns_id);
     String changeToJson(Member_info_Dto memberInfoDto);
     Member saveUser(MemberDto.AdditionalSignupInfo memberDto);
+    void removeMember(String Id);
     }

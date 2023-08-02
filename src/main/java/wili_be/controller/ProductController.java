@@ -133,7 +133,7 @@ public class ProductController {
         String JsonPost = productService.getPostFromId(Id);
         return ResponseEntity.ok().body(JsonPost);
     }
-    @PatchMapping("/products/update/{PostId}")
+    @PatchMapping("/products/{PostId}")
     ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {

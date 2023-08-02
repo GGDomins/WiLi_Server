@@ -91,13 +91,15 @@ public class MemberController {
         return ResponseEntity.ok("set" + accessToken + "blackList");
     }
 
-    @DeleteMapping("/users/delete/{Id}")
-    public ResponseEntity<String> removeMember(@PathVariable String Id) {
+    @DeleteMapping("/users/delete/{snsId}")
+    public ResponseEntity<String> removeMember(@PathVariable String snsId) {
         try {
-            memberService.removeMember(Id);
-            return ResponseEntity.ok().body(Id + "님이 탈퇴하셨습니다.");
+            memberService.removeMember(snsId);
+            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {
             return ResponseEntity.badRequest().body("존재하지 않는 회원입니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

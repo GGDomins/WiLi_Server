@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.dto.PostDto;
+import wili_be.dto.PostUpdateDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.repository.MemberRepository;
@@ -107,6 +108,38 @@ public class ProductService {
             return null;
         }
     }
+
+    public Post updatePost(Long postId, PostUpdateDto postUpdateDto) {
+        Post post = productRepository.findPostById(postId);
+
+        // 요청으로 받은 필드들로 업데이트
+        Post newPost = Post.builder()
+                .productName(postUpdateDto.getProductName())
+                .brandName(postUpdateDto.getBrandName())
+                .category(postUpdateDto.getCategory())
+                .productPrice(postUpdateDto.getProductPrice())
+                .description(postUpdateDto.getDescription())
+                .link(postUpdateDto.getLink())
+                .imageKey(post.getImageKey())
+                .id(postId)
+                .member(post.getMember())
+                .build();
+
+        // 업데이트된 게시물 저장
+        return productRepository.save(newPost);
+    }
+
+    public String changeToJson(Post post) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String postJson = objectMapper.writeValueAsString(post);
+            return postJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private void savePost(PostDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);
         Member member = member_op.get();

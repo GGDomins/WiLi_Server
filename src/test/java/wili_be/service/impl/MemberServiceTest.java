@@ -18,9 +18,6 @@ import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
-import wili_be.service.MemberService;
-import wili_be.service.ProductService;
-import wili_be.service.impl.MemberServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +28,8 @@ public class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
-    @Mock
-    private ProductRepository productRepository;
-
     @InjectMocks
     private MemberServiceImpl memberService;
-
     private Member_info_Dto memberDto;
     private Member member;
     private List<Post> posts = new ArrayList<>();
@@ -78,7 +71,6 @@ public class MemberServiceTest {
                 .snsId(memberDto.getSnsId())
                 .build();
 
-        // Mock the behavior of the memberRepository.save() method
         Member savedMember = new Member();
         when(memberRepository.save(any(Member.class))).thenReturn(savedMember);
 

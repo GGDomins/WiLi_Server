@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
 import wili_be.dto.ImageRequestDto;
 import wili_be.dto.PostIdDto;
+import wili_be.dto.PostUpdateDto;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
@@ -130,6 +131,27 @@ public class ProductController {
         }
         String JsonPost = productService.getPostFromId(Id);
         return ResponseEntity.ok().body(JsonPost);
+    }
+    @PutMapping("/products/update/{PostId}")
+    ResponseEntity<String> validateAccessToken(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateDto postUpdateDto) {
+        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+
+        if (StatusResult == StatusCode.OK) {
+            Post updatePost = productService.updatePost(PostId, postUpdateDto);
+            String jsonPost = productService.changeToJson(updatePost);
+            return ResponseEntity.ok(jsonPost);
+        }
+        return createBadRequestResponse("잘못된 요청입니다");
     }
 
 

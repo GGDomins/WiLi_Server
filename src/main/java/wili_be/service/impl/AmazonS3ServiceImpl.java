@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -123,8 +124,19 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         }
     }
 
+    @Transactional
     public void deleteImageByKey(String key) {
-        getAmazonS3().deleteObject(bucketName, key);
+        try {
+            // Check if the object exists before deleting
+            if (getAmazonS3().doesObjectExist(bucketName, key)) {
+                // Perform the delete operation
+                getAmazonS3().deleteObject(new DeleteObjectRequest(bucketName, key));
+            } else {
+                throw new RuntimeException("The image with key " + key + " does not exist in the S3 bucket.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete the image from Amazon S3", e);
+        }
     }
 
 }

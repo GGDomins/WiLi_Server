@@ -76,4 +76,21 @@ public class PostDto {
             this.imageKey = post.getImageKey();
         }
     }
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PostMainPageResponse {
+        private Long id;
+        private String brandName;
+        private String productName;
+        private String imageKey;
+
+        public PostMainPageResponse(Post post) {
+            this.id = post.getId();
+            this.brandName = post.getBrandName();
+            this.productName = post.getProductName();
+            this.imageKey = post.getImageKey();
+        }
+    }
 }

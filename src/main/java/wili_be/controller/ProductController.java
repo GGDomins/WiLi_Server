@@ -105,7 +105,7 @@ public class ProductController {
         }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         List<byte[]> images = productService.getImagesByMember(snsId);
-        List<PostResponseDto> postList = productService.getPostByMember(snsId);
+        List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
 
         List<String> image_json = productService.changeBytesToJson(images);
         List<String> post_json = productService.changePostDtoToJson(postList);

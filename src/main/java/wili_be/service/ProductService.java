@@ -80,11 +80,13 @@ public class ProductService {
 
         }
     }
-    public List<PostResponseDto> getPostByMember(String snsId) {
+    public List<PostMainPageResponse> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
-        List<PostResponseDto> postResponseDtoListt = postList.stream().map(PostResponseDto::new).collect(Collectors.toList());
+        List<PostMainPageResponse> postResponseDtoList = postList.stream()
+                .map(PostMainPageResponse::new)
+                .collect(Collectors.toList());
 
-        return postResponseDtoListt;
+        return postResponseDtoList;
     }
 
     public PostResponseDto getPostFromId(Long id) {
@@ -155,7 +157,7 @@ public class ProductService {
         return jsonList;
     }
 
-    public List<String> changePostDtoToJson(List<PostResponseDto> postResponseDtoList) {
+    public List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList) {
         List<String> postJsonList = postResponseDtoList.stream()
                 .map(postResponseDto -> {
                     try {

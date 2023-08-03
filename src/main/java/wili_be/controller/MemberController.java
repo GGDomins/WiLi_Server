@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import wili_be.controller.status.StatusCode;
+import wili_be.dto.MemberDto;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -15,6 +16,9 @@ import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import static wili_be.dto.MemberDto.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class MemberController {
     private final MemberService memberService;
     private final TokenService tokenService;
     private int StatusResult;
+
     @PostMapping("/users/auth")
     ResponseEntity<String> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -91,7 +96,31 @@ public class MemberController {
         return ResponseEntity.ok("set" + accessToken + "blackList");
     }
 
-    @DeleteMapping("/users/delete/{snsId}")
+    @GetMapping("/users/{snsId}")
+    ResponseEntity<?> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
+        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+
+        if (StatusResult == StatusCode.OK) {
+            Optional<Member> memberOptional = memberService.findMemberById(snsId);
+            if (memberOptional.isPresent()) {
+                MemberRequestDto memberRequestDto = new MemberRequestDto(memberOptional.get());
+                return ResponseEntity.ok().body(memberRequestDto);
+            } else {
+                return ResponseEntity.badRequest().body("member가 존재하지 않습니다.");
+            }
+        }
+        return createBadRequestResponse("잘못된 요청입니다");
+    }
+
+    @DeleteMapping("/users/{snsId}")
     public ResponseEntity<String> removeMember(@PathVariable String snsId) {
         try {
             memberService.removeMember(snsId);

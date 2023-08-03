@@ -6,7 +6,6 @@ import wili_be.entity.LoginProvider;
 import wili_be.entity.Member;
 
 
-
 public class MemberDto {
     @Data
     @ToString
@@ -27,13 +26,15 @@ public class MemberDto {
                     .snsId(snsId)
                     .build();
         }
-        public Member_info_Dto(SocialMemberInfoDto socialMemberInfoDto,LoginProvider loginProvider) {
+
+        public Member_info_Dto(SocialMemberInfoDto socialMemberInfoDto, LoginProvider loginProvider) {
             this.name = socialMemberInfoDto.getNickname();
             this.email = socialMemberInfoDto.getEmail();
             this.loginProvider = loginProvider;
             this.snsId = socialMemberInfoDto.getId();
         }
     }
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
@@ -53,5 +54,22 @@ public class MemberDto {
         private String snsId;
         private String username;
         private String birthday;
+    }
+
+    @Getter
+    public static class MemberRequestDto {
+        private String name;
+        private String email;
+        private LoginProvider loginProvider;
+        private String username;
+        private String birthday;
+
+        public MemberRequestDto(Member member) {
+            this.name = member.getName();
+            this.email = member.getEmail();
+            this.loginProvider = member.getLoginProvider();
+            this.username = member.getUsername();
+            this.birthday = member.getBirthday();
+        }
     }
 }

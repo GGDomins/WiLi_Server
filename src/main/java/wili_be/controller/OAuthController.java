@@ -55,7 +55,7 @@ public class OAuthController {
             Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.NAVER);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
-            Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
+            Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .header("www-authenticate")
@@ -97,7 +97,7 @@ public class OAuthController {
             Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.KAKAO);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
-            Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
+            Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .header("www-authenticate")

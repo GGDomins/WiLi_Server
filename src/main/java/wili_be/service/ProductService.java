@@ -191,7 +191,7 @@ public class ProductService {
     }
 
     private void savePost(PostInfoDto productInfo, String snsId) {
-        Optional<Member> member_op = memberService.findUserBySnsId(snsId);
+        Optional<Member> member_op = memberService.findMemberById(snsId);
         Member member = member_op.get();
         Post post = Post.builder()
                 .member(member)

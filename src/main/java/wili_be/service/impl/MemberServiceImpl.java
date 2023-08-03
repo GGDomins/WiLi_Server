@@ -59,7 +59,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         }
     }
 
-    public Optional<Member> findUserBySnsId(String sns_id) {
+    public Optional<Member> findMemberById(String sns_id) {
         return memberRepository.findBySnsId(sns_id);
     }
 

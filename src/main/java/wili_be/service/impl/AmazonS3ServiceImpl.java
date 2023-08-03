@@ -123,8 +123,8 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         }
     }
 
-    @Transactional
     public void deleteImageByKey(String key) {
         getAmazonS3().deleteObject(bucketName, key);
     }
+
 }

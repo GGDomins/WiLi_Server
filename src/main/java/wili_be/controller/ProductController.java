@@ -116,7 +116,7 @@ public class ProductController {
         return ResponseEntity.ok().body(response);
     }
     @GetMapping("/products/{Id}")
-    ResponseEntity<String> getPostsById(HttpServletRequest httpRequest,@PathVariable("Id") Long Id) throws IOException {
+    ResponseEntity<?> getPostsById(HttpServletRequest httpRequest,@PathVariable("Id") Long Id) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -135,7 +135,10 @@ public class ProductController {
 
         String JsonImage = productService.changeByteToJson(image);
         String JsonPost = productService.changePostToJson(post);
-        return ResponseEntity.ok().body("post: "+JsonPost+", image: " + JsonImage);
+        Map<String, Object> response = new HashMap<>();
+        response.put("image", JsonImage);
+        response.put("post", JsonPost);
+        return ResponseEntity.ok().body(response);
     }
     @PatchMapping("/products/{PostId}") // http method가 다르면 uri는 겹쳐도 된다.
     ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {

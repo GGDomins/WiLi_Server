@@ -52,14 +52,16 @@ public class OAuthController {
             oauthToken = naverLoginBO.getAccessToken(code, state);
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.NAVER, userInfo.getId());
-            String jsonMemberDto = memberService.changeToJson(memberDto);
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.NAVER);
+
+            String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .header("www-authenticate")
                         .body(jsonMemberDto);
             }
+
             TokenDto tokenDto = tokenService.createTokens(userInfo.getId());
             String accessToken = tokenDto.getAccessToken();
             String refreshToken = tokenDto.getRefreshToken();
@@ -89,19 +91,19 @@ public class OAuthController {
         log.info(code);
         OAuth2AccessToken oauthToken;
         try {
-            log.info("인가 코드를 이용하여 토큰을 받습니다.");
             oauthToken = kakaoLoginBO.getAccessToken(code);
-            log.info("토큰에 대한 정보입니다.{}", oauthToken);
             SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo.getNickname(), userInfo.getEmail(), LoginProvider.KAKAO, userInfo.getId());
-            String jsonMemberDto = memberService.changeToJson(memberDto);
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.KAKAO);
+
+            String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findUserBySnsId(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .header("www-authenticate")
                         .body(jsonMemberDto);
             }
+
             TokenDto tokenDto = tokenService.createTokens(userInfo.getId());
             String accessToken = tokenDto.getAccessToken();
             String refreshToken = tokenDto.getRefreshToken();

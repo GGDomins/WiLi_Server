@@ -27,7 +27,6 @@ import static wili_be.dto.MemberDto.*;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements UserDetailsService, MemberService {
     private final MemberRepository memberRepository;
-    private final ProductRepository productRepository;
     @Transactional
     @Override
     public Member saveUser(AdditionalSignupInfo memberDto) {
@@ -60,14 +59,12 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         }
     }
 
-
-
     public Optional<Member> findUserBySnsId(String sns_id) {
         return memberRepository.findBySnsId(sns_id);
     }
 
     @Override
-    public String changeToJson(Member_info_Dto memberInfoDto) {
+    public String changeMemberInfoDtoToJson(Member_info_Dto memberInfoDto) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String memberDtoJson = objectMapper.writeValueAsString(memberInfoDto);
@@ -80,7 +77,6 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
 
     public ResponseCookie createHttpOnlyCookie(String refreshToken) {
         //HTTPONLY 쿠키에 RefreshToken 생성후 전달
-
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)

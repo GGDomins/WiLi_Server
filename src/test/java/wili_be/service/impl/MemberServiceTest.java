@@ -115,7 +115,7 @@ public class MemberServiceTest {
         // Given
 
         // When
-        String json = memberService.changeToJson(memberDto);
+        String json = memberService.changeMemberInfoDtoToJson(memberDto);
 
         // Then
         assertNotNull(json);

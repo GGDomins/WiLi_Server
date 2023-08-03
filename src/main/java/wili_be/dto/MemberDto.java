@@ -27,6 +27,12 @@ public class MemberDto {
                     .snsId(snsId)
                     .build();
         }
+        public Member_info_Dto(SocialMemberInfoDto socialMemberInfoDto,LoginProvider loginProvider) {
+            this.name = socialMemberInfoDto.getNickname();
+            this.email = socialMemberInfoDto.getEmail();
+            this.loginProvider = loginProvider;
+            this.snsId = socialMemberInfoDto.getId();
+        }
     }
     @Getter
     @NoArgsConstructor

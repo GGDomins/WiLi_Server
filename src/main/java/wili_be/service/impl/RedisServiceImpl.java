@@ -24,7 +24,6 @@ public class RedisServiceImpl implements RedisService {
         redisTemplate.expire(key, Duration.ofHours(3)); // 3시간 후에 만료
     }
 
-
     // 키값으로 벨류 가져오기
     public String getValues(String key){
         ValueOperations<String, String> values = redisTemplate.opsForValue();

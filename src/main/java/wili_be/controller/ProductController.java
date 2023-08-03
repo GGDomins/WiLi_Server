@@ -192,13 +192,15 @@ public class ProductController {
                 if (member.getSnsId().equals(snsId)) {
                     amazonS3Service.deleteImageByKey(post.getImageKey());
                     productService.deletePostByPostId(PostId);
+                    return ResponseEntity.ok()
+                            .body("delete 성공!");
                 } else {
                     return ResponseEntity.badRequest()
                             .body("다른 사용자가 product를 수정하려고 시도합니다.");
                 }
             } catch (Exception e) {
                 return ResponseEntity.badRequest()
-                        .body(e.getMessage());
+                        .body(e.toString());
             }
         }
         return createBadRequestResponse("잘못된 요청입니다");

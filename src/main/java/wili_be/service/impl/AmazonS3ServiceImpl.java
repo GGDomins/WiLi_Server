@@ -4,7 +4,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -87,23 +91,36 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
 
     @Transactional
     public List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException {
-        List<byte[]> imageBytesList = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(keys.size());
 
-        for (String key : keys) {
-            S3Object s3Object = getAmazonS3().getObject(bucketName, key);
+        try {
+            List<CompletableFuture<byte[]>> futures = keys.stream()
+                    .map(key -> CompletableFuture.supplyAsync(() -> downloadImageBytes(key), executorService))
+                    .collect(Collectors.toList());
 
-            try (InputStream inputStream = s3Object.getObjectContent(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-                imageBytesList.add(outputStream.toByteArray());
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read the image from Amazon S3", e);
-            }
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
+        } finally {
+            executorService.shutdown();
         }
+    }
+    private byte[] downloadImageBytes(String key) {
+        S3Object s3Object = getAmazonS3().getObject(bucketName, key);
 
-        return imageBytesList;
+        try (InputStream inputStream = s3Object.getObjectContent(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.StrAlgoArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -178,10 +179,13 @@ public class ProductService {
         return postJsonList;
     }
 
-    public void deletePost(String key) {
+    public void deletePostByPostId(Long PostId) {
         try {
-            amazonS3Service.deleteImageByKey(key);
+            Post post = getPostFromId(PostId);
+            productRepository.delete(post);
         } catch (NullPointerException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }

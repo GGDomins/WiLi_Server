@@ -12,5 +12,5 @@ public interface AmazonS3Service {
     ResponseEntity<InputStreamResource> downloadObject(String key);
     byte[] getImageBytesByKey(String key) throws IOException;
     List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException;
-    public void deleteImageByKey(String key);
+    void deleteImageByKey(String key);
 }

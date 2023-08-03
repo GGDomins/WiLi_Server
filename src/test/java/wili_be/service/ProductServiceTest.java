@@ -86,4 +86,26 @@ class ProductServiceTest {
         verify(productRepository).findPostById(postId);
         verifyNoMoreInteractions(productRepository);
     }
+    @Test
+    public void testDeletePostByPostId() {
+        // given
+        Long postId = 1L;
+        Post post = new Post();
+        post.setId(postId);
+        post.setBrandName("애플");
+        post.setProductName("아이폰 15");
+        post.setCategory("핸드폰");
+        post.setProductPrice("100");
+        post.setDescription("아이폰 15는 C타입입니다.");
+        post.setLink("www.iphone.com");
+        post.setImageKey("qwer1234");
+
+        when(productRepository.findPostById(postId)).thenReturn(post);
+
+        // when
+        productService.deletePostByPostId(postId);
+
+        // then
+        verify(productRepository, times(1)).delete(post);
+    }
 }

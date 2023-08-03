@@ -118,8 +118,8 @@ public class ProductController {
         response.put("posts", post_json);
         return ResponseEntity.ok().body(response);
     }
-    @GetMapping("/products/{Id}")
-    ResponseEntity<?> getPostsById(HttpServletRequest httpRequest,@PathVariable("Id") Long Id) throws IOException {
+    @GetMapping("/products/{PostId}")
+    ResponseEntity<?> getPostsById(HttpServletRequest httpRequest,@PathVariable Long PostId) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -133,7 +133,7 @@ public class ProductController {
         if (StatusResult != StatusCode.OK) {
             return createBadRequestResponse("잘못된 요청입니다");
         }
-        PostResponseDto post = productService.getPostResponseDtoFromId(Id);
+        PostResponseDto post = productService.getPostResponseDtoFromId(PostId);
         byte[] image = productService.getImageByMember(post.getImageKey());
 
         String JsonImage = productService.changeByteToJson(image);
@@ -145,7 +145,7 @@ public class ProductController {
     }
     @Transactional
     @PatchMapping("/products/{PostId}") // http method가 다르면 uri는 겹쳐도 된다.
-    ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
+    ResponseEntity<String> updateProduct(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
@@ -168,7 +168,42 @@ public class ProductController {
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }
-//    @DeleteMapping("/product/")
+    @Transactional
+    @DeleteMapping("/product/{PostId}")
+    ResponseEntity<String> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {
+        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+
+        if (StatusResult == StatusCode.OK) {
+            try {
+                String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+                Post post = productService.getPostFromId(PostId);
+                Member member = post.getMember();
+
+                if (member.getSnsId().equals(snsId)) {
+                    amazonS3Service.deleteImageByKey(post.getImageKey());
+                    productService.deletePostByPostId(PostId);
+                } else {
+                    return ResponseEntity.badRequest()
+                            .body("다른 사용자가 product를 수정하려고 시도합니다.");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.badRequest()
+                        .body(e.getMessage());
+            }
+        }
+
+        return createBadRequestResponse("잘못된 요청입니다");
+    }
 
 
     private ResponseEntity<String> createUnauthorizedResponse(String message) {

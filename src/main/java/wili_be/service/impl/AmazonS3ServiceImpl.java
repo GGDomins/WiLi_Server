@@ -126,7 +126,10 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     public void deleteImageByKey(String imageKey) {
         try {
             // AmazonS3 클라이언트를 생성합니다.
-            AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKeyId, secretAccessKey)))
+                    .withRegion(region)
+                    .build();
 
             // 이미지를 삭제합니다.
             s3Client.deleteObject(bucketName, imageKey);
@@ -134,6 +137,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException(e);
         }
     }
+
 
 
 }

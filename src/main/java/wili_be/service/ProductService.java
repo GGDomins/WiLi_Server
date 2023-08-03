@@ -66,6 +66,20 @@ public class ProductService {
         }
         return new ArrayList<>();
     }
+
+    public byte[] getImageByMember(String imageKey) throws IOException {
+        try {
+            byte[] image = amazonS3Service.getImageBytesByKey(imageKey);
+            if (image == null) {
+                return null;
+            }
+            return image;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IOException("Error retrieving the image by member: " + imageKey, e);
+
+        }
+    }
     public List<PostResponseDto> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
         List<PostResponseDto> postResponseDtoListt = postList.stream().map(PostResponseDto::new).collect(Collectors.toList());
@@ -115,7 +129,7 @@ public class ProductService {
         return postResponseDto;
     }
 
-    public String changeToJson(PostResponseDto post) {
+    public String changePostToJson(PostResponseDto post) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String postJson = objectMapper.writeValueAsString(post);
@@ -126,7 +140,12 @@ public class ProductService {
         }
     }
 
-    public List<String> changeByteToJson(List<byte[]> bytes) {
+    public String changeByteToJson(byte[] bytes) {
+        String encodedImage = java.util.Base64.getEncoder().encodeToString(bytes);
+        return encodedImage;
+    }
+
+    public List<String> changeBytesToJson(List<byte[]> bytes) {
         List<String> jsonList = new ArrayList<>();
         for (byte[] imageBytes : bytes) {
             // 바이트 배열을 Base64로 인코딩하여 문자열로 변환합니다.

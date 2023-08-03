@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
-import wili_be.dto.ImageDto;
-import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
 import wili_be.service.ProductService;
@@ -53,7 +51,6 @@ public class ProductController {
     @PostMapping("/products/images-test")
     public ResponseEntity<byte[]> getImageByKey(@RequestBody ImageRequestDto requestDto) {
         String key = requestDto.getKey();
-
         try {
             byte[] imageBytes = amazonS3Service.getImageBytesByKey(key);
 
@@ -110,7 +107,7 @@ public class ProductController {
         List<byte[]> images = productService.getImagesByMember(snsId);
         List<PostResponseDto> postList = productService.getPostByMember(snsId);
 
-        List<String> image_json = productService.changeByteToJson(images);
+        List<String> image_json = productService.changeBytesToJson(images);
         List<String> post_json = productService.changePostDtoToJson(postList);
 
         Map<String, Object> response = new HashMap<>();
@@ -134,10 +131,13 @@ public class ProductController {
             return createBadRequestResponse("잘못된 요청입니다");
         }
         PostResponseDto post = productService.getPostFromId(Id);
-        String JsonPost = productService.changeToJson(post);
-        return ResponseEntity.ok().body(JsonPost);
+        byte[] image = productService.getImageByMember(post.getImageKey());
+
+        String JsonImage = productService.changeByteToJson(image);
+        String JsonPost = productService.changePostToJson(post);
+        return ResponseEntity.ok().body("post: "+JsonPost+", image: " + JsonImage);
     }
-    @PatchMapping("/products/{PostId}")
+    @PatchMapping("/products/{PostId}") // http method가 다르면 uri는 겹쳐도 된다.
     ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
@@ -149,7 +149,7 @@ public class ProductController {
         }
         if (StatusResult == StatusCode.OK) {
             PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
-            String jsonPost = productService.changeToJson(updatePost);
+            String jsonPost = productService.changePostToJson(updatePost);
             return ResponseEntity.ok(jsonPost);
         }
         return createBadRequestResponse("잘못된 요청입니다");

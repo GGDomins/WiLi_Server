@@ -6,5 +6,6 @@ import wili_be.entity.Member;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
+    Optional<Member> findMemberBySnsId(String snsId);
     Optional<Member> findBySnsId(String snsId);
 }

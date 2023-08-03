@@ -27,6 +27,7 @@ import static wili_be.dto.MemberDto.*;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements UserDetailsService, MemberService {
     private final MemberRepository memberRepository;
+
     @Transactional
     @Override
     public Member saveUser(AdditionalSignupInfo memberDto) {
@@ -42,16 +43,13 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
                 .build();
         return memberRepository.save(member);
     }
+
     @Transactional
     public void removeMember(String snsId) {
         try {
-            Optional<Member> memberOptional = memberRepository.findBySnsId(snsId);
-            if (memberOptional.isPresent()) {
-                Member member = memberOptional.get();
-                memberRepository.delete(member);
-            } else {
-                throw new NoSuchElementException("해당하는 회원을 찾을 수 없습니다.");
-            }
+            Optional<Member> memberOptional = findMemberById(snsId);
+            Member member = memberOptional.get();
+            memberRepository.delete(member);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -87,6 +85,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
 
         return responseCookie;
     }
+
     @Override
     public UserDetails loadUserByUsername(String snsId) throws UsernameNotFoundException {
         return memberRepository.findBySnsId(snsId)

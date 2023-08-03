@@ -169,7 +169,7 @@ public class ProductController {
         return createBadRequestResponse("잘못된 요청입니다");
     }
     @Transactional
-    @DeleteMapping("/product/{PostId}")
+    @DeleteMapping("/products/{PostId}")
     ResponseEntity<String> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 

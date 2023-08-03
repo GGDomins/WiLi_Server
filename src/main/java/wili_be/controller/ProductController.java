@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static wili_be.dto.ImageDto.*;
-import static wili_be.dto.PostInfoDto.*;
+import static wili_be.dto.PostDto.*;
 
 @RestController
 @Slf4j

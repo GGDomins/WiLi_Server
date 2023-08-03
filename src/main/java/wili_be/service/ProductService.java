@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import wili_be.dto.PostInfoDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.repository.ProductRepository;
@@ -17,7 +16,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static wili_be.dto.PostInfoDto.*;
+import static wili_be.dto.PostDto.*;
+
 
 @Service
 @Slf4j
@@ -29,9 +29,9 @@ public class ProductService {
 
     public void addProduct(MultipartFile file, String productInfoJson, String snsId) {
         ObjectMapper objectMapper = new ObjectMapper();
-        PostDto productInfo = null;
+        PostInfoDto productInfo = null;
         try {
-            productInfo = objectMapper.readValue(productInfoJson, PostDto.class);
+            productInfo = objectMapper.readValue(productInfoJson, PostInfoDto.class);
 
             String key = amazonS3Service.putObject(file, file.getOriginalFilename());
             productInfo.setImageKey(key);
@@ -152,7 +152,7 @@ public class ProductService {
         return postJsonList;
     }
 
-    private void savePost(PostDto productInfo, String snsId) {
+    private void savePost(PostInfoDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findUserBySnsId(snsId);
         Member member = member_op.get();
         Post post = Post.builder()

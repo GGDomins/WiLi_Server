@@ -51,9 +51,9 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             Member member = memberOptional.get();
             memberRepository.delete(member);
         } catch (NoSuchElementException e) {
-            e.printStackTrace();
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

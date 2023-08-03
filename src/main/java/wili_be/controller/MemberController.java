@@ -47,7 +47,7 @@ public class MemberController {
 
         if (StatusResult == StatusCode.OK) {
             String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            return ResponseEntity.ok().body("snsId: " + snsId);
+            return ResponseEntity.ok().body("{ snsId: " + snsId + " }");
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }

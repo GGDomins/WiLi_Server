@@ -92,7 +92,6 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     @Transactional
     public List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException {
         ExecutorService executorService = Executors.newFixedThreadPool(keys.size());
-
         try {
             List<CompletableFuture<byte[]>> futures = keys.stream()
                     .map(key -> CompletableFuture.supplyAsync(() -> downloadImageBytes(key), executorService))

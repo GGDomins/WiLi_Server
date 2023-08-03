@@ -89,7 +89,7 @@ public class ProductService {
         return postResponseDtoList;
     }
 
-    public PostResponseDto getPostFromId(Long id) {
+    public PostResponseDto getPostResponseDtoFromId(Long id) {
         Post post = productRepository.findPostById(id);
         PostResponseDto postResponseDto = new PostResponseDto(post);
         if (postResponseDto == null) {
@@ -97,6 +97,11 @@ public class ProductService {
             return null;
         }
         return postResponseDto;
+    }
+
+    public Post getPostFromId(Long id) {
+        Post post = productRepository.findPostById(id);
+        return post;
     }
 
     public PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto) {
@@ -171,6 +176,14 @@ public class ProductService {
                 .filter(json -> json != null)
                 .collect(Collectors.toList());
         return postJsonList;
+    }
+
+    public void deletePost(String key) {
+        try {
+            amazonS3Service.deleteImageByKey(key);
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private void savePost(PostInfoDto productInfo, String snsId) {

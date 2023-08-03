@@ -122,4 +122,9 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
         }
     }
+
+    @Transactional
+    public void deleteImageByKey(String key) {
+        getAmazonS3().deleteObject(bucketName, key);
+    }
 }

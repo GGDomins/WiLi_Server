@@ -6,9 +6,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
+import wili_be.entity.Member;
+import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
 import wili_be.service.ProductService;
@@ -130,7 +133,7 @@ public class ProductController {
         if (StatusResult != StatusCode.OK) {
             return createBadRequestResponse("잘못된 요청입니다");
         }
-        PostResponseDto post = productService.getPostFromId(Id);
+        PostResponseDto post = productService.getPostResponseDtoFromId(Id);
         byte[] image = productService.getImageByMember(post.getImageKey());
 
         String JsonImage = productService.changeByteToJson(image);
@@ -140,6 +143,7 @@ public class ProductController {
         response.put("post", JsonPost);
         return ResponseEntity.ok().body(response);
     }
+    @Transactional
     @PatchMapping("/products/{PostId}") // http method가 다르면 uri는 겹쳐도 된다.
     ResponseEntity<String> updatePost(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -151,13 +155,20 @@ public class ProductController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
         if (StatusResult == StatusCode.OK) {
-            PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
-            String jsonPost = productService.changePostToJson(updatePost);
-            return ResponseEntity.ok(jsonPost);
+            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+            Post post = productService.getPostFromId(PostId);
+            Member member = post.getMember();
+            if (member.getSnsId().equals(snsId)) {
+                PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
+                String jsonPost = productService.changePostToJson(updatePost);
+                return ResponseEntity.ok(jsonPost);
+            }
+            return ResponseEntity.badRequest()
+                    .body("다른 사용자가 product를 수정하려고 시도합니다.");
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }
-
+//    @DeleteMapping("/product/")
 
 
     private ResponseEntity<String> createUnauthorizedResponse(String message) {

@@ -123,16 +123,14 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
         }
     }
-    public void deleteImageByKey(String imageKey) {
+    @Transactional
+    public void deleteImageByKey(String key) {
         try {
             // AmazonS3 클라이언트를 생성합니다.
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKeyId, secretAccessKey)))
-                    .withRegion(region)
-                    .build();
+            AmazonS3 s3Client = getAmazonS3();
 
             // 이미지를 삭제합니다.
-            s3Client.deleteObject(bucketName, imageKey);
+            s3Client.deleteObject(bucketName, key);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

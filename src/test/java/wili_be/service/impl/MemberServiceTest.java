@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
 public class MemberServiceTest {
 
     @Mock
@@ -98,6 +98,20 @@ public class MemberServiceTest {
     }
 
     @Test
+    void removeMember_Should_DeleteMember_When_MemberExists() {
+        // Given
+        String snsId = "qwer1234";
+        Member existingMember = memberDto.to_Entity();
+        when(memberRepository.findBySnsId(snsId)).thenReturn(Optional.of(existingMember));
+
+        // When
+        memberService.removeMember(snsId);
+        // Then
+        verify(memberRepository, times(1)).delete(existingMember);
+        //assertNull(existingMember); 삭제하는 것은 null로 변환하는 것이 아니다. 단지 db에서 없앨 뿐이지.
+    }
+
+    @Test
     void findUserBySnsId_Should_ReturnEmptyOptional_When_MemberNotExists() {
         // Given
         String snsId = "non_existent_sns_id";
@@ -147,14 +161,5 @@ public class MemberServiceTest {
         assertEquals(member.getEmail(), userDetails.getUsername());
     }
 
-    @Test
-    void removeMember_Should_ThrowNoSuchElementException_When_MemberNotExists() {
-        // Given
-        String nonExistentSnsId = "non_existent_sns_id";
-        when(memberRepository.findBySnsId(eq(nonExistentSnsId))).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(NoSuchElementException.class, () -> memberService.removeMember(nonExistentSnsId));
-    }
 
 }

@@ -15,6 +15,8 @@ import wili_be.service.TokenService;
 
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -32,7 +34,7 @@ public class MemberController {
     private int StatusResult;
 
     @PostMapping("/users/auth")
-    ResponseEntity<String> validateAccessToken(HttpServletRequest httpRequest) {
+    ResponseEntity<?> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -47,7 +49,9 @@ public class MemberController {
 
         if (StatusResult == StatusCode.OK) {
             String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            return ResponseEntity.ok().body("{ snsId: " + snsId + " }");
+            Map<String, Object> response = new HashMap<>();
+            response.put("snsId", snsId);
+            return ResponseEntity.ok().body(response);
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }

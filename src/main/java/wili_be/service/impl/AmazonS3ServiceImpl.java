@@ -123,20 +123,17 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
         }
     }
-
-    @Transactional
-    public void deleteImageByKey(String key) {
+    public void deleteImageByKey(String imageKey) {
         try {
-            // Check if the object exists before deleting
-            if (getAmazonS3().doesObjectExist(bucketName, key)) {
-                // Perform the delete operation
-                getAmazonS3().deleteObject(new DeleteObjectRequest(bucketName, key));
-            } else {
-                throw new RuntimeException("The image with key " + key + " does not exist in the S3 bucket.");
-            }
+            // AmazonS3 클라이언트를 생성합니다.
+            AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+
+            // 이미지를 삭제합니다.
+            s3Client.deleteObject(bucketName, imageKey);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete the image from Amazon S3", e);
+            throw new RuntimeException(e);
         }
     }
+
 
 }

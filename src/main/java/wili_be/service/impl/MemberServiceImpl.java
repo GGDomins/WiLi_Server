@@ -59,7 +59,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Transactional
-    public MemberUpdateResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto) {
+    public MemberResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto) {
         Optional<Member> memberOptional = findMemberById(snsId);
         if (memberOptional.isEmpty()) {
             throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
@@ -82,7 +82,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             member.setBirthday(memberRequestDto.getBirthday());
         }
         memberRepository.save(member);
-        MemberUpdateResponseDto memberUpdateResponseDto = new MemberUpdateResponseDto(member);
+        MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);
         return memberUpdateResponseDto;
     }
 
@@ -103,7 +103,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Override
-    public String changeMemberUpdateDtoToJson(MemberUpdateResponseDto memberUpdateResponseDto) {
+    public String changeMemberUpdateDtoToJson(MemberResponseDto memberUpdateResponseDto) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String updateMemberJson = objectMapper.writeValueAsString(memberUpdateResponseDto);

@@ -57,6 +57,8 @@ public class MemberDto {
     }
 
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MemberResponseDto {
         private String name;
         private String email;
@@ -74,6 +76,8 @@ public class MemberDto {
     }
 
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MemberUpdateResponseDto {
         private String name;
         private String email;

@@ -20,7 +20,7 @@ public interface MemberService{
     String changeMemberInfoDtoToJson(Member_info_Dto memberInfoDto);
     Member saveUser(AdditionalSignupInfo memberDto);
     void removeMember(String Id);
-    MemberUpdateResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto);
-    String changeMemberUpdateDtoToJson(MemberUpdateResponseDto memberUpdateResponseDto);
+    MemberResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto);
+    String changeMemberUpdateDtoToJson(MemberResponseDto memberUpdateResponseDto);
     String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto);
     }

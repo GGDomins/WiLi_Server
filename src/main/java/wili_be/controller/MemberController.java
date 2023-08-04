@@ -136,7 +136,7 @@ public class MemberController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
         if (StatusResult == StatusCode.OK) {
-            MemberUpdateResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
+            MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
             String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
             return ResponseEntity.ok().body(updateMemberJson);
         }

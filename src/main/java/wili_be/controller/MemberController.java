@@ -135,9 +135,14 @@ public class MemberController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
         if (StatusResult == StatusCode.OK) {
-            MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
-            String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
-            return ResponseEntity.ok().body(updateMemberJson);
+            try {
+                MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
+                String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
+                return ResponseEntity.ok().body(updateMemberJson);
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(e.getMessage());
+            }
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }

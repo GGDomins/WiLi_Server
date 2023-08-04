@@ -73,30 +73,35 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
 
     @Transactional
     public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
-        Optional<Member> memberOptional = findMemberById(snsId);
-        if (memberOptional.isEmpty()) {
-            throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
+        if (validateExistingMember(memberRequestDto.getUsername())) {
+            Optional<Member> memberOptional = findMemberById(snsId);
+            if (memberOptional.isEmpty()) {
+                throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
+            }
+            Member member = memberOptional.get();
+            // 요청으로 받은 필드들로 업데이트
+            if (memberRequestDto.getName() != null) {
+                member.setName(memberRequestDto.getName());
+            }
+            if (memberRequestDto.getEmail() != null) {
+                member.setEmail(memberRequestDto.getEmail());
+            }
+            if (memberRequestDto.getLoginProvider() != null) {
+                member.setLoginProvider(memberRequestDto.getLoginProvider());
+            }
+            if (memberRequestDto.getUsername() != null) {
+                member.setUsername(memberRequestDto.getUsername());
+            }
+            if (memberRequestDto.getBirthday() != null) {
+                member.setBirthday(memberRequestDto.getBirthday());
+            }
+            memberRepository.save(member);
+            MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);
+            return memberUpdateResponseDto;
+        } else {
+            throw new NoSuchElementException("이미 존재하는 username입니다.");
         }
-        Member member = memberOptional.get();
-        // 요청으로 받은 필드들로 업데이트
-        if (memberRequestDto.getName() != null) {
-            member.setName(memberRequestDto.getName());
-        }
-        if (memberRequestDto.getEmail() != null) {
-            member.setEmail(memberRequestDto.getEmail());
-        }
-        if (memberRequestDto.getLoginProvider() != null) {
-            member.setLoginProvider(memberRequestDto.getLoginProvider());
-        }
-        if (memberRequestDto.getUsername() != null) {
-            member.setUsername(memberRequestDto.getUsername());
-        }
-        if (memberRequestDto.getBirthday() != null) {
-            member.setBirthday(memberRequestDto.getBirthday());
-        }
-        memberRepository.save(member);
-        MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);
-        return memberUpdateResponseDto;
+
     }
 
     public Optional<Member> findMemberById(String sns_id) {

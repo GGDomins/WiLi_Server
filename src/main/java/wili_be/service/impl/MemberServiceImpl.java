@@ -32,17 +32,30 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Transactional
     @Override
     public Member saveUser(AdditionalSignupInfo memberDto) {
-        Member member = Member.builder()
-                .name(memberDto.getName())
-                .email(memberDto.getEmail())
-                .loginProvider(memberDto.getLoginProvider())
-                .snsId(memberDto.getSnsId())
-                .username(memberDto.getUsername())
-                .birthday(memberDto.getBirthday())
-                .isBan(false)
-                .isAdmin(false)
-                .build();
-        return memberRepository.save(member);
+        if (validateExistingMember(memberDto.getUsername())) {
+            Member member = Member.builder()
+                    .name(memberDto.getName())
+                    .email(memberDto.getEmail())
+                    .loginProvider(memberDto.getLoginProvider())
+                    .snsId(memberDto.getSnsId())
+                    .username(memberDto.getUsername())
+                    .birthday(memberDto.getBirthday())
+                    .isBan(false)
+                    .isAdmin(false)
+                    .build();
+            return memberRepository.save(member);
+        } else {
+            throw new NoSuchElementException("이미 존재하는 userName입니다.");
+        }
+    }
+
+    private boolean validateExistingMember(String username) {
+        Optional<Member> memberOptional = memberRepository.findMemberByUsername(username);
+        if (memberOptional.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Transactional

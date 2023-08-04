@@ -25,6 +25,7 @@ import wili_be.dto.MemberDto.SocialMemberInfoDto;
 import wili_be.dto.MemberDto.Member_info_Dto;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static wili_be.dto.MemberDto.*;
@@ -137,6 +138,9 @@ public class OAuthController {
         } catch (NullPointerException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("additionalSignupInfo is null");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 }

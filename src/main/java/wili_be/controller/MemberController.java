@@ -9,16 +9,11 @@ import wili_be.dto.MemberDto;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
-import wili_be.service.MemberService;
-import wili_be.service.RedisService;
-import wili_be.service.TokenService;
+import wili_be.service.*;
 
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static wili_be.dto.MemberDto.*;
 
@@ -31,6 +26,8 @@ public class MemberController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
     private final TokenService tokenService;
+    private final AmazonS3Service amazonS3Service;
+    private final ProductService productService;
     private int StatusResult;
 
     @PostMapping("/users/auth")
@@ -129,6 +126,8 @@ public class MemberController {
     public ResponseEntity<String> removeMember(@PathVariable String snsId) {
         try {
             memberService.removeMember(snsId);
+            List<String> imageKeys = productService.getImagesKeysByMember(snsId);
+            amazonS3Service.deleteImagesByKeys(imageKeys);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {
             return ResponseEntity.badRequest().body("존재하지 않는 회원입니다.");

@@ -15,7 +15,9 @@ import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
+import wili_be.service.AmazonS3Service;
 import wili_be.service.MemberService;
+import wili_be.service.ProductService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,6 +29,8 @@ import static wili_be.dto.MemberDto.*;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements UserDetailsService, MemberService {
     private final MemberRepository memberRepository;
+    private final ProductService productService;
+    private final AmazonS3Service amazonS3Service;
 
     @Transactional
     @Override
@@ -49,7 +53,16 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         try {
             Optional<Member> memberOptional = findMemberById(snsId);
             Member member = memberOptional.get();
-            memberRepository.delete(member);
+
+            List<String> imageKeys = productService.getImagesKeysByMember(member.getSnsId());
+            if (imageKeys.isEmpty()) {
+                memberRepository.delete(member);
+            } else {
+                amazonS3Service.deleteImagesByKeys(imageKeys);
+                memberRepository.delete(member);
+            }
+
+
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {

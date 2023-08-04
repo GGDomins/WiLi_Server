@@ -13,4 +13,5 @@ public interface AmazonS3Service {
     byte[] getImageBytesByKey(String key) throws IOException;
     List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException;
     void deleteImageByKey(String key);
+    void deleteImagesByKeys(List<String> keys);
 }

@@ -136,6 +136,18 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         }
     }
 
+    @Transactional
+    public void deleteImagesByKeys(List<String> keys) {
+        try {
+            AmazonS3 s3Client = getAmazonS3();
+            for (String key : keys) {
+                s3Client.deleteObject(bucketName, key);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
 }

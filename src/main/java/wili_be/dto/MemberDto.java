@@ -78,14 +78,14 @@ public class MemberDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MemberUpdateResponseDto {
+    public static class MemberUpdateRequestDto {
         private String name;
         private String email;
         private LoginProvider loginProvider;
         private String username;
         private String birthday;
 
-        public MemberUpdateResponseDto(Member member) {
+        public MemberUpdateRequestDto(Member member) {
             this.name = member.getName();
             this.email = member.getEmail();
             this.loginProvider = member.getLoginProvider();

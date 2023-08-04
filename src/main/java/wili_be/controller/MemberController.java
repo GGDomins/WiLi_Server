@@ -109,7 +109,6 @@ public class MemberController {
         if (StatusResult == StatusCode.UNAUTHORIZED) {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
-
         if (StatusResult == StatusCode.OK) {
             Optional<Member> memberOptional = memberService.findMemberById(snsId);
             if (memberOptional.isPresent()) {
@@ -124,7 +123,7 @@ public class MemberController {
     }
 
     @PatchMapping("/users/{snsId}")
-    public ResponseEntity<String> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateResponseDto memberRequestDto) {
+    public ResponseEntity<String> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {

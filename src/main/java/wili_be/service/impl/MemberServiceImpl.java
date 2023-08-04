@@ -59,7 +59,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Transactional
-    public MemberResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto) {
+    public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
         Optional<Member> memberOptional = findMemberById(snsId);
         if (memberOptional.isEmpty()) {
             throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");

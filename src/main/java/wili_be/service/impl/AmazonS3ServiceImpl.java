@@ -144,7 +144,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
                 s3Client.deleteObject(bucketName, key);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return;
         }
     }
 

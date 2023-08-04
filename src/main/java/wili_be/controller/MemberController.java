@@ -125,9 +125,12 @@ public class MemberController {
     @DeleteMapping("/users/{snsId}")
     public ResponseEntity<String> removeMember(@PathVariable String snsId) {
         try {
-            memberService.removeMember(snsId);
             List<String> imageKeys = productService.getImagesKeysByMember(snsId);
             amazonS3Service.deleteImagesByKeys(imageKeys);
+            memberService.removeMember(snsId);
+            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
+        } catch (NullPointerException e) {
+            memberService.removeMember(snsId);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {
             return ResponseEntity.badRequest().body("존재하지 않는 회원입니다.");

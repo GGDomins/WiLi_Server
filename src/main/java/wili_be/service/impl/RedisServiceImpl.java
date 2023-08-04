@@ -18,14 +18,14 @@ public class RedisServiceImpl implements RedisService {
     private final RedisTemplate<String, String> redisTemplate;
 
     // 키-벨류 설정
-    public void setValues(String key, String value){
+    public void setValues(String key, String value) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         values.set(key, value);
         redisTemplate.expire(key, Duration.ofHours(3)); // 3시간 후에 만료
     }
 
     // 키값으로 벨류 가져오기
-    public String getValues(String key){
+    public String getValues(String key) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         return values.get(key);
     }
@@ -34,6 +34,7 @@ public class RedisServiceImpl implements RedisService {
     public void delValues(String key) {
         redisTemplate.delete(key);
     } // <Key, Value> 쌍을 redis에서 지운다.
+
     public boolean exists(String key) {
         return redisTemplate.hasKey(key);
     }

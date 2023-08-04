@@ -118,8 +118,9 @@ public class ProductController {
         response.put("posts", post_json);
         return ResponseEntity.ok().body(response);
     }
+
     @GetMapping("/products/{PostId}")
-    ResponseEntity<?> getPostsById(HttpServletRequest httpRequest,@PathVariable Long PostId) throws IOException {
+    ResponseEntity<?> getPostsById(HttpServletRequest httpRequest, @PathVariable Long PostId) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -143,8 +144,10 @@ public class ProductController {
         response.put("post", JsonPost);
         return ResponseEntity.ok().body(response);
     }
+
     @Transactional
-    @PatchMapping("/products/{PostId}") // http method가 다르면 uri는 겹쳐도 된다.
+    @PatchMapping("/products/{PostId}")
+        // http method가 다르면 uri는 겹쳐도 된다.
     ResponseEntity<String> updateProduct(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
@@ -168,6 +171,7 @@ public class ProductController {
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }
+
     @Transactional
     @DeleteMapping("/products/{PostId}")
     ResponseEntity<String> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {

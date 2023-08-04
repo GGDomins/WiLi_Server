@@ -34,10 +34,12 @@ public class PostDto {
                     .build();
         }
     }
+
     @Data
     public static class PostIdDto {
         Long id;
     }
+
     @Data
     @Builder
     @AllArgsConstructor
@@ -76,6 +78,7 @@ public class PostDto {
             this.imageKey = post.getImageKey();
         }
     }
+
     @Data
     @Builder
     @AllArgsConstructor

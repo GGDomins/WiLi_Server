@@ -36,20 +36,18 @@ public class ProductService {
 
             String key = amazonS3Service.putObject(file, file.getOriginalFilename());
             productInfo.setImageKey(key);
-            savePost(productInfo,snsId);
-        }
-        catch (UsernameNotFoundException e) {
-        }
-        catch (JsonProcessingException e) {
+            savePost(productInfo, snsId);
+        } catch (UsernameNotFoundException e) {
+        } catch (JsonProcessingException e) {
         }
     }
 
     public List<String> getImagesKeysByMember(String snsId) {
-        List<String> imageList =  productRepository.findImageKeysBysnsId(snsId);
+        List<String> imageList = productRepository.findImageKeysBysnsId(snsId);
         if (imageList.isEmpty()) {
             return null;
         }
-            return imageList;
+        return imageList;
     }
 
     public List<byte[]> getImagesByMember(String snsId) throws IOException {
@@ -81,6 +79,7 @@ public class ProductService {
 
         }
     }
+
     public List<PostMainPageResponse> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
         List<PostMainPageResponse> postResponseDtoList = postList.stream()

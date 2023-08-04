@@ -2,7 +2,7 @@ package wili_be.security.oauth;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-public class OAuthApi{
+public class OAuthApi {
 
     public static class NaverOAuthApi extends DefaultApi20 {
 
@@ -16,6 +16,7 @@ public class OAuthApi{
         public static NaverOAuthApi instance() {
             return InstanceHolder.INSTANCE;
         }
+
         @Override
         public String getAccessTokenEndpoint() {
             return "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code";
@@ -28,6 +29,7 @@ public class OAuthApi{
         }
 
     }
+
     public static class KakaoOAuthApi extends DefaultApi20 {
 
         protected KakaoOAuthApi() {
@@ -51,7 +53,6 @@ public class OAuthApi{
             return "https://kauth.kakao.com/oauth/authorize";
         }
     }
-
 
 
 }

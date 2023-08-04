@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 public class Member implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +30,9 @@ public class Member implements UserDetails {
     private LoginProvider loginProvider;
     private boolean isBan;
     private boolean isAdmin;
-    @OneToMany(mappedBy = "member",cascade = CascadeType.REMOVE) // member을 지우면 member와 관련된 post들이 모두 삭제가 된다.
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE) // member을 지우면 member와 관련된 post들이 모두 삭제가 된다.
     private List<Post> posts = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -40,6 +42,7 @@ public class Member implements UserDetails {
         }
         return authorities;
     }
+
     @Override
     public String getPassword() {
         return null;

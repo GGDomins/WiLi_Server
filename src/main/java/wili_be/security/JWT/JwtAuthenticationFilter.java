@@ -55,19 +55,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private int validateAccessToken(String accessToken) {
         if (hasKeyBlackList(accessToken)) {
             return StatusCode.BAD_REQUEST;
-        }
-        else if (jwtTokenProvider.validateToken(accessToken)) {
+        } else if (jwtTokenProvider.validateToken(accessToken)) {
             return StatusCode.OK;
-        }
-        else if (jwtTokenProvider.isTokenExpired(accessToken)) {
+        } else if (jwtTokenProvider.isTokenExpired(accessToken)) {
             return StatusCode.UNAUTHORIZED;
         } else {
             return StatusCode.BAD_REQUEST;
         }
     }
+
     private Boolean hasKeyBlackList(String AccessToken) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(AccessToken));
     }
+
     private ResponseEntity<String> createUnauthorizedResponse(String message) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .header("WWW-Authenticate", "not-logged-in")

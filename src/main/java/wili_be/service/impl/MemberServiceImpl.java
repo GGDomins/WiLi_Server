@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wili_be.dto.MemberDto;
 import wili_be.dto.MemberDto.Member_info_Dto;
+import wili_be.dto.PostDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.repository.MemberRepository;
@@ -57,6 +58,34 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         }
     }
 
+    @Transactional
+    public MemberUpdateResponseDto updateMember(String snsId, MemberUpdateResponseDto memberRequestDto) {
+        Optional<Member> memberOptional = findMemberById(snsId);
+        if (memberOptional.isEmpty()) {
+            throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
+        }
+        Member member = memberOptional.get();
+        // 요청으로 받은 필드들로 업데이트
+        if (memberRequestDto.getName() != null) {
+            member.setName(memberRequestDto.getName());
+        }
+        if (memberRequestDto.getEmail() != null) {
+            member.setEmail(memberRequestDto.getEmail());
+        }
+        if (memberRequestDto.getLoginProvider() != null) {
+            member.setLoginProvider(memberRequestDto.getLoginProvider());
+        }
+        if (memberRequestDto.getUsername() != null) {
+            member.setUsername(memberRequestDto.getUsername());
+        }
+        if (memberRequestDto.getBirthday() != null) {
+            member.setBirthday(memberRequestDto.getBirthday());
+        }
+        memberRepository.save(member);
+        MemberUpdateResponseDto memberUpdateResponseDto = new MemberUpdateResponseDto(member);
+        return memberUpdateResponseDto;
+    }
+
     public Optional<Member> findMemberById(String sns_id) {
         return memberRepository.findBySnsId(sns_id);
     }
@@ -67,6 +96,30 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             ObjectMapper objectMapper = new ObjectMapper();
             String memberDtoJson = objectMapper.writeValueAsString(memberInfoDto);
             return memberDtoJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String changeMemberUpdateDtoToJson(MemberUpdateResponseDto memberUpdateResponseDto) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String updateMemberJson = objectMapper.writeValueAsString(memberUpdateResponseDto);
+            return updateMemberJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String memberResponseDtoJson = objectMapper.writeValueAsString(memberResponseDto);
+            return memberResponseDtoJson;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

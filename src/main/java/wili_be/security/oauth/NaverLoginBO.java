@@ -9,6 +9,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 
 import wili_be.security.oauth.OAuthApi.NaverOAuthApi;
@@ -30,7 +31,6 @@ public class NaverLoginBO {
 
     @Value("${spring.profile-api-url}")
     private String PROFILE_API_URL;
-
 
 
     //    네이버아이디로 Callback처리 및 AccessToken 획득 Method

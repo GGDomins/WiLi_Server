@@ -55,6 +55,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException(e);
         }
     }
+
     @Transactional
     public ResponseEntity<InputStreamResource> downloadObject(String key) {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
@@ -109,6 +110,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             executorService.shutdown();
         }
     }
+
     private byte[] downloadImageBytes(String key) {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
 
@@ -123,6 +125,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
         }
     }
+
     @Transactional
     public void deleteImageByKey(String key) {
         try {
@@ -147,7 +150,6 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             return;
         }
     }
-
 
 
 }

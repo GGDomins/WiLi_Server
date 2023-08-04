@@ -1,7 +1,6 @@
 package wili_be.security.JWT;
 
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -73,7 +72,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            log.info("resolveToken 값 반환: "+ bearerToken);
+            log.info("resolveToken 값 반환: " + bearerToken);
             return bearerToken.substring(7);
         }
         log.info("resolveToken null 반환" + bearerToken);

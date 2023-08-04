@@ -57,14 +57,31 @@ public class MemberDto {
     }
 
     @Getter
-    public static class MemberRequestDto {
+    public static class MemberResponseDto {
         private String name;
         private String email;
         private LoginProvider loginProvider;
         private String username;
         private String birthday;
 
-        public MemberRequestDto(Member member) {
+        public MemberResponseDto(Member member) {
+            this.name = member.getName();
+            this.email = member.getEmail();
+            this.loginProvider = member.getLoginProvider();
+            this.username = member.getUsername();
+            this.birthday = member.getBirthday();
+        }
+    }
+
+    @Getter
+    public static class MemberUpdateResponseDto {
+        private String name;
+        private String email;
+        private LoginProvider loginProvider;
+        private String username;
+        private String birthday;
+
+        public MemberUpdateResponseDto(Member member) {
             this.name = member.getName();
             this.email = member.getEmail();
             this.loginProvider = member.getLoginProvider();

@@ -52,7 +52,7 @@ public class OAuthController {
             oauthToken = naverLoginBO.getAccessToken(code, state);
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.NAVER);
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
@@ -87,14 +87,14 @@ public class OAuthController {
      * KAKAO
      */
     @RequestMapping(value = "/kakao/callback", method = {RequestMethod.POST, RequestMethod.GET})
-    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code){
+    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
         log.info(code);
         OAuth2AccessToken oauthToken;
         try {
             oauthToken = kakaoLoginBO.getAccessToken(code);
             SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
 
-            Member_info_Dto memberDto = new Member_info_Dto(userInfo,LoginProvider.KAKAO);
+            Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
@@ -111,7 +111,7 @@ public class OAuthController {
             ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                    .header("accessToken",accessToken)
+                    .header("accessToken", accessToken)
                     .body("Name: " + userInfo.getNickname() + ", Email: " + userInfo.getEmail() + ", id: " + userInfo.getId() + ", AccessToken: " + tokenDto.getAccessToken() + ", RefreshToken: " + tokenDto.getRefreshToken());
         } catch (HttpClientErrorException.BadRequest ex) {
             return ResponseEntity.badRequest().body("Kakao API Bad Request: " + ex.getStatusCode() + " " + ex.getStatusText());
@@ -131,7 +131,7 @@ public class OAuthController {
             ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                    .header("accessToken",accessToken)
+                    .header("accessToken", accessToken)
                     .body("signup SuccessFul");
 
         } catch (NullPointerException e) {

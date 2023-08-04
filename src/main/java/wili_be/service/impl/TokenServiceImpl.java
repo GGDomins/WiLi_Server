@@ -13,6 +13,7 @@ import wili_be.service.RedisService;
 import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class TokenServiceImpl implements TokenService {
 
         return tokenDto;
     }
+
     public TokenDto createTokensFromRefreshToken(String snsId, String old_refreshToken) {
         TokenDto tokenDto = new TokenDto();
         String accessToken = jwtTokenProvider.createToken(snsId, TokenType.ACCESS_TOKEN.getValue(), AccessexpireTimeMs);
@@ -53,11 +55,9 @@ public class TokenServiceImpl implements TokenService {
         if (redisService.hasKeyBlackList(accessToken)) {
             log.info("blackList 만들었음");
             return StatusCode.BAD_REQUEST;
-        }
-        else if (jwtTokenProvider.validateToken(accessToken)) {
+        } else if (jwtTokenProvider.validateToken(accessToken)) {
             return StatusCode.OK;
-        }
-        else if (jwtTokenProvider.isTokenExpired(accessToken)) {
+        } else if (jwtTokenProvider.isTokenExpired(accessToken)) {
             return StatusCode.UNAUTHORIZED;
         } else {
             return StatusCode.BAD_REQUEST;

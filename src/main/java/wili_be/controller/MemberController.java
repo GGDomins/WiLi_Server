@@ -99,7 +99,7 @@ public class MemberController {
     }
 
     @GetMapping("/users/{snsId}")
-    ResponseEntity<?> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
+    ResponseEntity<String> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -113,11 +113,32 @@ public class MemberController {
         if (StatusResult == StatusCode.OK) {
             Optional<Member> memberOptional = memberService.findMemberById(snsId);
             if (memberOptional.isPresent()) {
-                MemberRequestDto memberRequestDto = new MemberRequestDto(memberOptional.get());
-                return ResponseEntity.ok().body(memberRequestDto);
+                MemberResponseDto memberResponseDto = new MemberResponseDto(memberOptional.get());
+                String memberResponseDtoJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
+                return ResponseEntity.ok().body(memberResponseDtoJson);
             } else {
                 return ResponseEntity.badRequest().body("member가 존재하지 않습니다.");
             }
+        }
+        return createBadRequestResponse("잘못된 요청입니다");
+    }
+
+    @PatchMapping("/users/{snsId}")
+    public ResponseEntity<String> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateResponseDto memberRequestDto) {
+        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult == StatusCode.OK) {
+            MemberUpdateResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
+            String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
+            return ResponseEntity.ok().body(updateMemberJson);
         }
         return createBadRequestResponse("잘못된 요청입니다");
     }

@@ -30,7 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//
+
+    //
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -57,14 +58,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          */
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("https://wili-pi.vercel.app"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setExposedHeaders(Arrays.asList("accessToken","WWW-Authenticate")); // "accessToken","WWW-Authenticate" 헤더를 노출시킵니다.
+        configuration.setExposedHeaders(Arrays.asList("accessToken", "WWW-Authenticate")); // "accessToken","WWW-Authenticate" 헤더를 노출시킵니다.
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

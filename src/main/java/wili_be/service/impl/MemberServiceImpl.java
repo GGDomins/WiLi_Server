@@ -32,25 +32,21 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Transactional
     @Override
     public Member saveUser(AdditionalSignupInfo memberDto) {
-        if (validateExistingMember(memberDto.getUsername())) {
-            Member member = Member.builder()
-                    .name(memberDto.getName())
-                    .email(memberDto.getEmail())
-                    .loginProvider(memberDto.getLoginProvider())
-                    .snsId(memberDto.getSnsId())
-                    .username(memberDto.getUsername())
-                    .birthday(memberDto.getBirthday())
-                    .favorites(memberDto.getFavorites())
-                    .isBan(false)
-                    .isAdmin(false)
-                    .build();
-            return memberRepository.save(member);
-        } else {
-            throw new NoSuchElementException("이미 존재하는 userName입니다.");
-        }
+        Member member = Member.builder()
+                .name(memberDto.getName())
+                .email(memberDto.getEmail())
+                .loginProvider(memberDto.getLoginProvider())
+                .snsId(memberDto.getSnsId())
+                .username(memberDto.getUsername())
+                .birthday(memberDto.getBirthday())
+                .favorites(memberDto.getFavorites())
+                .isBan(false)
+                .isAdmin(false)
+                .build();
+        return memberRepository.save(member);
     }
 
-    private boolean validateExistingMember(String username) {
+    public boolean validateExistingMember(String username) {
         Optional<Member> memberOptional = memberRepository.findMemberByUsername(username);
         if (memberOptional.isEmpty()) {
             return true;
@@ -76,39 +72,36 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Transactional
     @Override
     public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
-        if (validateExistingMember(memberRequestDto.getUsername())) {
-            Optional<Member> memberOptional = findMemberById(snsId);
-            if (memberOptional.isEmpty()) {
-                throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
-            }
-            Member member = memberOptional.get();
-            // 요청으로 받은 필드들로 업데이트
-            if (memberRequestDto.getName() != null) {
-                member.setName(memberRequestDto.getName());
-            }
-            if (memberRequestDto.getEmail() != null) {
-                member.setEmail(memberRequestDto.getEmail());
-            }
-            if (memberRequestDto.getLoginProvider() != null) {
-                member.setLoginProvider(memberRequestDto.getLoginProvider());
-            }
-            if (memberRequestDto.getUsername() != null) {
-                member.setUsername(memberRequestDto.getUsername());
-            }
-            if (memberRequestDto.getBirthday() != null) {
-                member.setBirthday(memberRequestDto.getBirthday());
-            }
-            if (memberRequestDto.getFavorites() != null) {
-                member.setFavorites(memberRequestDto.getFavorites());
-            }
-            memberRepository.save(member);
-            MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);
-            return memberUpdateResponseDto;
-        } else {
-            throw new NoSuchElementException("이미 존재하는 username입니다.");
+        Optional<Member> memberOptional = findMemberById(snsId);
+        if (memberOptional.isEmpty()) {
+            throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
         }
+        Member member = memberOptional.get();
+        // 요청으로 받은 필드들로 업데이트
+        if (memberRequestDto.getName() != null) {
+            member.setName(memberRequestDto.getName());
+        }
+        if (memberRequestDto.getEmail() != null) {
+            member.setEmail(memberRequestDto.getEmail());
+        }
+        if (memberRequestDto.getLoginProvider() != null) {
+            member.setLoginProvider(memberRequestDto.getLoginProvider());
+        }
+        if (memberRequestDto.getUsername() != null) {
+            member.setUsername(memberRequestDto.getUsername());
+        }
+        if (memberRequestDto.getBirthday() != null) {
+            member.setBirthday(memberRequestDto.getBirthday());
+        }
+        if (memberRequestDto.getFavorites() != null) {
+            member.setFavorites(memberRequestDto.getFavorites());
+        }
+        memberRepository.save(member);
+        MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);
+        return memberUpdateResponseDto;
 
     }
+
     @Override
     public Optional<Member> findMemberById(String sns_id) {
         return memberRepository.findBySnsId(sns_id);
@@ -149,6 +142,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             return null;
         }
     }
+
     @Override
     public ResponseCookie createHttpOnlyCookie(String refreshToken) {
         //HTTPONLY 쿠키에 RefreshToken 생성후 전달

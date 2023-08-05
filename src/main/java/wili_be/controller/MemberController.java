@@ -104,6 +104,17 @@ public class MemberController {
         }
     }
 
+    @GetMapping("/users/check/{username}")
+    public ResponseEntity<String> validateUserName(@PathVariable String username) {
+        if (memberService.validateExistingMember(username)) {
+            return ResponseEntity.ok()
+                    .body("존재하지 않는 username입니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("이미 존재하는 username입니다.");
+        }
+    }
+
     @PatchMapping("/users/{snsId}")
     public ResponseEntity<String> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);

@@ -23,4 +23,6 @@ public interface MemberService{
     MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto);
     String changeMemberUpdateDtoToJson(MemberResponseDto memberUpdateResponseDto);
     String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto);
+
+    boolean validateExistingMember(String username);
     }

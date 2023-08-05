@@ -157,19 +157,20 @@ public class ProductController {
         if (StatusResult == StatusCode.UNAUTHORIZED) {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
-        if (StatusResult == StatusCode.OK) {
-            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            Post post = productService.getPostFromId(PostId);
-            Member member = post.getMember();
-            if (member.getSnsId().equals(snsId)) {
-                PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
-                String jsonPost = productService.changePostToJson(updatePost);
-                return ResponseEntity.ok(jsonPost);
-            }
-            return ResponseEntity.badRequest()
-                    .body("다른 사용자가 product를 수정하려고 시도합니다.");
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
         }
-        return createBadRequestResponse("잘못된 요청입니다");
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        Post post = productService.getPostFromId(PostId);
+        Member member = post.getMember();
+        if (member.getSnsId().equals(snsId)) {
+            PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
+            String jsonPost = productService.changePostToJson(updatePost);
+            return ResponseEntity.ok(jsonPost);
+        }
+        return ResponseEntity.badRequest()
+                .body("다른 사용자가 product를 수정하려고 시도합니다.");
+
     }
 
     @Transactional
@@ -187,27 +188,32 @@ public class ProductController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
 
-        if (StatusResult == StatusCode.OK) {
-            try {
-                String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-                Post post = productService.getPostFromId(PostId);
-                Member member = post.getMember();
-
-                if (member.getSnsId().equals(snsId)) {
-                    amazonS3Service.deleteImageByKey(post.getImageKey());
-                    productService.deletePostByPostId(PostId);
-                    return ResponseEntity.ok()
-                            .body("delete 성공!");
-                } else {
-                    return ResponseEntity.badRequest()
-                            .body("다른 사용자가 product를 수정하려고 시도합니다.");
-                }
-            } catch (Exception e) {
-                return ResponseEntity.badRequest()
-                        .body(e.toString());
-            }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
         }
-        return createBadRequestResponse("잘못된 요청입니다");
+        try {
+            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+            Post post = productService.getPostFromId(PostId);
+            Member member = post.getMember();
+
+            if (member.getSnsId().equals(snsId)) {
+                productService.deletePostByPostId(PostId);
+                amazonS3Service.deleteImageByKey(post.getImageKey());
+                return ResponseEntity.ok()
+                        .body("delete 성공!");
+            } else {
+                return ResponseEntity.badRequest()
+                        .body("다른 사용자가 product를 수정하려고 시도합니다.");
+            }
+
+        } catch (NullPointerException e) {
+            return ResponseEntity.ok()
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(e.toString());
+        }
+
     }
 
 

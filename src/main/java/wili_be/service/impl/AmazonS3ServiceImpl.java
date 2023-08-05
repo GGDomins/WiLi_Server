@@ -3,6 +3,7 @@ package wili_be.service.impl;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +44,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     private String bucketName;
 
     @Transactional
+    @Override
     public String putObject(MultipartFile file, String filename) {
         try {
             String key = UUID.randomUUID().toString() + "/" + filename;
@@ -57,6 +59,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     }
 
     @Transactional
+    @Override
     public ResponseEntity<InputStreamResource> downloadObject(String key) {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
         return ResponseEntity.ok()
@@ -75,6 +78,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
 
     // 이미지 조회를 위한 메서드
     @Transactional
+    @Override
     public byte[] getImageBytesByKey(String key) throws IOException {
         S3Object s3Object = getAmazonS3().getObject(bucketName, key);
 
@@ -87,11 +91,12 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
 
             return outputStream.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read the image from Amazon S3", e);
+            throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);
         }
     }
 
     @Transactional
+    @Override
     public List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException {
         ExecutorService executorService = Executors.newFixedThreadPool(keys.size());
         try {
@@ -127,6 +132,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     }
 
     @Transactional
+    @Override
     public void deleteImageByKey(String key) {
         try {
             // AmazonS3 클라이언트를 생성합니다.
@@ -135,11 +141,12 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             // 이미지를 삭제합니다.
             s3Client.deleteObject(bucketName, key);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new NoSuchElementException("멤버는 지웠으나, 이미지는 존재하지 않아서 지우지 못했습니다.");
         }
     }
 
     @Transactional
+    @Override
     public void deleteImagesByKeys(List<String> keys) {
         try {
             AmazonS3 s3Client = getAmazonS3();
@@ -147,9 +154,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
                 s3Client.deleteObject(bucketName, key);
             }
         } catch (Exception e) {
-            return;
+            throw new NoSuchElementException("멤버는 지웠으나, 이미지는 존재하지 않아서 지우지 못했습니다.");
         }
     }
-
-
 }

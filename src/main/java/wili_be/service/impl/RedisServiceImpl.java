@@ -18,6 +18,7 @@ public class RedisServiceImpl implements RedisService {
     private final RedisTemplate<String, String> redisTemplate;
 
     // 키-벨류 설정
+    @Override
     public void setValues(String key, String value) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         values.set(key, value);
@@ -25,20 +26,24 @@ public class RedisServiceImpl implements RedisService {
     }
 
     // 키값으로 벨류 가져오기
+    @Override
     public String getValues(String key) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         return values.get(key);
     }
 
     // 키-벨류 삭제
+    @Override
     public void delValues(String key) {
         redisTemplate.delete(key);
     } // <Key, Value> 쌍을 redis에서 지운다.
 
+    @Override
     public boolean exists(String key) {
         return redisTemplate.hasKey(key);
     }
 
+    @Override
     public void setAccessTokenBlackList(String accessTokenBlackList) {
         log.info(accessTokenBlackList);
         log.info("블랙리스트 토큰입니다.");
@@ -50,6 +55,7 @@ public class RedisServiceImpl implements RedisService {
         log.info("블랙리스트 완료");
     }
 
+    @Override
     public Boolean hasKeyBlackList(String AccessToken) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(AccessToken));
     }

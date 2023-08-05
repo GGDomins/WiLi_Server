@@ -59,6 +59,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Transactional
+    @Override
     public void removeMember(String snsId) {
         try {
             Optional<Member> memberOptional = findMemberById(snsId);
@@ -72,6 +73,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Transactional
+    @Override
     public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
         if (validateExistingMember(memberRequestDto.getUsername())) {
             Optional<Member> memberOptional = findMemberById(snsId);
@@ -103,7 +105,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         }
 
     }
-
+    @Override
     public Optional<Member> findMemberById(String sns_id) {
         return memberRepository.findBySnsId(sns_id);
     }
@@ -143,7 +145,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             return null;
         }
     }
-
+    @Override
     public ResponseCookie createHttpOnlyCookie(String refreshToken) {
         //HTTPONLY 쿠키에 RefreshToken 생성후 전달
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)

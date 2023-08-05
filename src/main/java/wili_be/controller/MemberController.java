@@ -158,9 +158,9 @@ public class MemberController {
             memberService.removeMember(snsId);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {
-            return ResponseEntity.badRequest().body("존재하지 않는 회원입니다.");
+            return ResponseEntity.ok().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok().body(e.getMessage());
         }
     }
 }

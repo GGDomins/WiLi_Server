@@ -24,6 +24,7 @@ public class TokenServiceImpl implements TokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
 
+    @Override
     public TokenDto createTokens(String snsId) {
         TokenDto tokenDto = new TokenDto();
         String accessToken = jwtTokenProvider.createToken(snsId, TokenType.ACCESS_TOKEN.getValue(), AccessexpireTimeMs);
@@ -37,6 +38,7 @@ public class TokenServiceImpl implements TokenService {
         return tokenDto;
     }
 
+    @Override
     public TokenDto createTokensFromRefreshToken(String snsId, String old_refreshToken) {
         TokenDto tokenDto = new TokenDto();
         String accessToken = jwtTokenProvider.createToken(snsId, TokenType.ACCESS_TOKEN.getValue(), AccessexpireTimeMs);
@@ -50,6 +52,7 @@ public class TokenServiceImpl implements TokenService {
         return tokenDto;
     }
 
+    @Override
     public int validateAccessToken(String accessToken) {
         log.info("블랙리스트 여부");
         if (redisService.hasKeyBlackList(accessToken)) {

@@ -44,32 +44,14 @@ public class MemberController {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
 
-        if (StatusResult == StatusCode.OK) {
-            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            Map<String, Object> response = new HashMap<>();
-            response.put("snsId", snsId);
-            return ResponseEntity.ok().body(response);
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
         }
-        return createBadRequestResponse("잘못된 요청입니다");
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        Map<String, Object> response = new HashMap<>();
+        response.put("snsId", snsId);
+        return ResponseEntity.ok().body(response);
     }
-
-
-    private ResponseEntity<String> createUnauthorizedResponse(String message) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .header("WWW-Authenticate", "not-logged-in")
-                .body(message);
-    }
-
-    private ResponseEntity<String> createExpiredTokenResponse(String message) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .header("WWW-Authenticate", "Bearer error=\"invalid_token\"")
-                .body(message);
-    }
-
-    private ResponseEntity<String> createBadRequestResponse(String message) {
-        return ResponseEntity.badRequest().body(message);
-    }
-
 
     @PostMapping("/users/refresh-token")
     ResponseEntity<String> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
@@ -109,17 +91,17 @@ public class MemberController {
         if (StatusResult == StatusCode.UNAUTHORIZED) {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
-        if (StatusResult == StatusCode.OK) {
-            Optional<Member> memberOptional = memberService.findMemberById(snsId);
-            if (memberOptional.isPresent()) {
-                MemberResponseDto memberResponseDto = new MemberResponseDto(memberOptional.get());
-                String memberResponseDtoJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
-                return ResponseEntity.ok().body(memberResponseDtoJson);
-            } else {
-                return ResponseEntity.badRequest().body("member가 존재하지 않습니다.");
-            }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
         }
-        return createBadRequestResponse("잘못된 요청입니다");
+        Optional<Member> memberOptional = memberService.findMemberById(snsId);
+        if (memberOptional.isPresent()) {
+            MemberResponseDto memberResponseDto = new MemberResponseDto(memberOptional.get());
+            String memberResponseDtoJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
+            return ResponseEntity.ok().body(memberResponseDtoJson);
+        } else {
+            return ResponseEntity.badRequest().body("member가 존재하지 않습니다.");
+        }
     }
 
     @PatchMapping("/users/{snsId}")
@@ -134,25 +116,39 @@ public class MemberController {
         if (StatusResult == StatusCode.UNAUTHORIZED) {
             return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
         }
-        if (StatusResult == StatusCode.OK) {
-            try {
-                MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
-                String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
-                return ResponseEntity.ok().body(updateMemberJson);
-            } catch (NoSuchElementException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(e.getMessage());
-            }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
         }
-        return createBadRequestResponse("잘못된 요청입니다");
+        try {
+            MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
+            String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
+            return ResponseEntity.ok().body(updateMemberJson);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/users/{snsId}")
-    public ResponseEntity<String> removeMember(@PathVariable String snsId) {
+    public ResponseEntity<String> removeMember(HttpServletRequest httpServletRequest, @PathVariable String snsId) {
+        String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
+        }
+
         try {
             List<String> imageKeys = productService.getImagesKeysByMember(snsId);
             amazonS3Service.deleteImagesByKeys(imageKeys);
             memberService.removeMember(snsId);
+            redisService.setAccessTokenBlackList(accessToken);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NullPointerException e) {
             memberService.removeMember(snsId);
@@ -162,5 +158,21 @@ public class MemberController {
         } catch (Exception e) {
             return ResponseEntity.ok().body(e.getMessage());
         }
+    }
+
+    private ResponseEntity<String> createUnauthorizedResponse(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("WWW-Authenticate", "not-logged-in")
+                .body(message);
+    }
+
+    private ResponseEntity<String> createExpiredTokenResponse(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("WWW-Authenticate", "Bearer error=\"invalid_token\"")
+                .body(message);
+    }
+
+    private ResponseEntity<String> createBadRequestResponse(String message) {
+        return ResponseEntity.badRequest().body(message);
     }
 }

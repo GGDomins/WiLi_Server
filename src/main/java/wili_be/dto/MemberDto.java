@@ -54,6 +54,7 @@ public class MemberDto {
         private String snsId;
         private String username;
         private String birthday;
+        private String favorites;
     }
 
     @Getter
@@ -84,6 +85,7 @@ public class MemberDto {
         private LoginProvider loginProvider;
         private String username;
         private String birthday;
+        private String favorites;
 
         public MemberUpdateRequestDto(Member member) {
             this.name = member.getName();
@@ -91,6 +93,7 @@ public class MemberDto {
             this.loginProvider = member.getLoginProvider();
             this.username = member.getUsername();
             this.birthday = member.getBirthday();
+            this.favorites = member.getFavorites();
         }
     }
 }

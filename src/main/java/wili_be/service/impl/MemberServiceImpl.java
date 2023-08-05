@@ -40,6 +40,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
                     .snsId(memberDto.getSnsId())
                     .username(memberDto.getUsername())
                     .birthday(memberDto.getBirthday())
+                    .favorites(memberDto.getFavorites())
                     .isBan(false)
                     .isAdmin(false)
                     .build();
@@ -96,6 +97,9 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
             }
             if (memberRequestDto.getBirthday() != null) {
                 member.setBirthday(memberRequestDto.getBirthday());
+            }
+            if (memberRequestDto.getFavorites() != null) {
+                member.setFavorites(memberRequestDto.getFavorites());
             }
             memberRepository.save(member);
             MemberResponseDto memberUpdateResponseDto = new MemberResponseDto(member);

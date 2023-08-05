@@ -26,6 +26,7 @@ public class Member implements UserDetails {
     private String birthday;
     private String email;
     private String snsId;
+    private String favorites;
     @Enumerated(EnumType.STRING)
     private LoginProvider loginProvider;
     private boolean isBan;

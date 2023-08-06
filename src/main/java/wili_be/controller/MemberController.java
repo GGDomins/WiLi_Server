@@ -103,13 +103,19 @@ public class MemberController {
     }
 
     @GetMapping("/users/check/{username}")
-    public ResponseEntity<String> validateUserName(@PathVariable String username) {
+    public ResponseEntity<Map<String, String>> validateUserName(@PathVariable String username) {
+        Map<String, String> response = new HashMap<>();
+        String result = null;
         if (memberService.validateExistingMember(username)) {
+            result = "사용가능 합니다.";
+            response.put("message", result);
             return ResponseEntity.ok()
-                    .body("message: " + "사용가능 합니다.");
+                    .body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("message: " + "중복");
+            result = "중복";
+            response.put("message", result);
+            return ResponseEntity.ok()
+                    .body(response);
         }
     }
 

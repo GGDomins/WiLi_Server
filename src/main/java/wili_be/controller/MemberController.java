@@ -104,16 +104,14 @@ public class MemberController {
 
     @GetMapping("/users/check/{username}")
     public ResponseEntity<Map<String, String>> validateUserName(@PathVariable String username) {
-        Map<String, String> response = new HashMap<>();
-        String result = null;
         if (memberService.validateExistingMember(username)) {
-            result = "사용가능 합니다.";
-            response.put("message", result);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "사용가능 합니다.");
             return ResponseEntity.ok()
                     .body(response);
         } else {
-            result = "중복";
-            response.put("message", result);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "중복");
             return ResponseEntity.ok()
                     .body(response);
         }

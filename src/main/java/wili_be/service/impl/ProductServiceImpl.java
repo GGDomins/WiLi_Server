@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.StrAlgoArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import wili_be.service.AmazonS3Service;
 import wili_be.service.MemberService;
 import wili_be.service.ProductService;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final AmazonS3Service amazonS3Service;
     private final ProductRepository productRepository;
     private final MemberService memberService;
+
     @Override
     public void addProduct(MultipartFile file, String productInfoJson, String snsId) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -37,13 +41,28 @@ public class ProductServiceImpl implements ProductService {
         try {
             productInfo = objectMapper.readValue(productInfoJson, PostInfoDto.class);
 
-            String key = amazonS3Service.putObject(file, file.getOriginalFilename());
+            byte[] thumbnailImage = createThumbnail(file.getBytes(), 100, 100);
+
+            String key = amazonS3Service.putObject(thumbnailImage, file.getOriginalFilename());
             productInfo.setImageKey(key);
             savePost(productInfo, snsId);
         } catch (UsernameNotFoundException e) {
+            throw new RuntimeException(e.getMessage());
         } catch (JsonProcessingException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
+    // 썸네일 생성 메서드
+    private byte[] createThumbnail(byte[] imageBytes, int width, int height) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Thumbnails.of(new ByteArrayInputStream(imageBytes))
+                .size(width, height)
+                .toOutputStream(outputStream);
+        return outputStream.toByteArray();
+    }
+
     @Override
     public List<String> getImagesKeysByMember(String snsId) {
         List<String> imageList = productRepository.findImageKeysBysnsId(snsId);
@@ -52,6 +71,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return imageList;
     }
+
     @Override
     public List<byte[]> getImagesByMember(String snsId) throws IOException {
         List<String> imageKeyList = getImagesKeysByMember(snsId);
@@ -68,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return new ArrayList<>();
     }
+
     @Override
     public byte[] getImageByMember(String imageKey) throws IOException {
         try {
@@ -82,6 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
         }
     }
+
     @Override
     public List<PostMainPageResponse> getPostByMember(String snsId) {
         List<Post> postList = productRepository.findPostBySnsId(snsId);
@@ -91,6 +113,7 @@ public class ProductServiceImpl implements ProductService {
 
         return postResponseDtoList;
     }
+
     @Override
     public PostResponseDto getPostResponseDtoFromId(Long id) {
         Post post = productRepository.findPostById(id);
@@ -101,11 +124,13 @@ public class ProductServiceImpl implements ProductService {
         }
         return postResponseDto;
     }
+
     @Override
     public Post getPostFromId(Long id) {
         Post post = productRepository.findPostById(id);
         return post;
     }
+
     @Override
     public PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto) {
         Post post = productRepository.findPostById(postId);
@@ -138,6 +163,7 @@ public class ProductServiceImpl implements ProductService {
         // 업데이트된 게시물 저장
         return postResponseDto;
     }
+
     @Override
     public String changePostToJson(PostResponseDto post) {
         try {
@@ -149,11 +175,13 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
     }
+
     @Override
     public String changeByteToJson(byte[] bytes) {
         String encodedImage = java.util.Base64.getEncoder().encodeToString(bytes);
         return encodedImage;
     }
+
     @Override
     public List<String> changeBytesToJson(List<byte[]> bytes) {
         List<String> jsonList = new ArrayList<>();
@@ -164,6 +192,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return jsonList;
     }
+
     @Override
     public List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList) {
         List<String> postJsonList = postResponseDtoList.stream()
@@ -180,6 +209,7 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
         return postJsonList;
     }
+
     @Override
     public void deletePostByPostId(Long PostId) {
         try {

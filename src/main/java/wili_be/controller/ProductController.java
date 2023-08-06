@@ -36,18 +36,6 @@ public class ProductController {
     private final TokenService tokenService;
     private int StatusResult;
 
-
-    @PostMapping("/products/upload")
-    public ResponseEntity<String> uploadImage(@RequestBody MultipartFile file) {
-        try {
-            String fileName = file.getOriginalFilename();
-            String key = amazonS3Service.putObject(file, fileName);
-            return ResponseEntity.status(HttpStatus.OK).body("key: " + key);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 업로드에 실패했습니다." + e.getMessage());
-        }
-    }
-
     // 이미지 조회 엔드포인트
     @PostMapping("/products/images-test")
     public ResponseEntity<byte[]> getImageByKey(@RequestBody ImageRequestDto requestDto) {

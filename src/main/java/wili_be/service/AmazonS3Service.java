@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 public interface AmazonS3Service {
-    String putObject(MultipartFile file, String filename);
+    String putObject(byte[] imageBytes, String filename);
     ResponseEntity<InputStreamResource> downloadObject(String key);
     byte[] getImageBytesByKey(String key) throws IOException;
     List<byte[]> getImageBytesByKeys(List<String> keys) throws IOException;

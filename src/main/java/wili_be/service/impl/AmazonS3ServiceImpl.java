@@ -45,18 +45,20 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
 
     @Transactional
     @Override
-    public String putObject(MultipartFile file, String filename) {
+    public String putObject(byte[] imageBytes, String filename) {
         try {
             String key = UUID.randomUUID().toString() + "/" + filename;
             ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(file.getContentType());
-            objectMetadata.setContentLength(file.getSize());
-            getAmazonS3().putObject(bucketName, key, file.getInputStream(), objectMetadata);
+            // 이미지 파일의 content type은 필요에 따라 설정해 주세요.
+            objectMetadata.setContentType("image/jpeg");
+            objectMetadata.setContentLength(imageBytes.length);
+            getAmazonS3().putObject(bucketName, key, new ByteArrayInputStream(imageBytes), objectMetadata);
             return key;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
     @Transactional
     @Override

@@ -1,4 +1,4 @@
-package wili_be.service;
+package wili_be.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,7 @@ import wili_be.dto.PostDto;
 import wili_be.dto.PostDto.PostUpdateResponseDto;
 import wili_be.entity.Post;
 import wili_be.repository.ProductRepository;
+import wili_be.service.ProductService;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -23,17 +24,41 @@ class ProductServiceTest {
     private ProductRepository productRepository;
 
     @InjectMocks
-    private ProductService productService;
+    private ProductServiceImpl productService;
+    private PostInfoDto postInfoDto1;
+    private PostInfoDto postInfoDto2;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        //테스트 시작 전에 PostInfo_Dto 객체를 초기화
+        postInfoDto1 = new PostInfoDto();
+        postInfoDto1.setBrandName("나이키");
+        postInfoDto1.setProductName("범고래");
+        postInfoDto1.setCategory("신발");
+        postInfoDto1.setProductPrice("200");
+        postInfoDto1.setDescription("범고래 신발 너무 흔해요");
+        postInfoDto1.setLink("www.nike.com");
+
+        postInfoDto2 = new PostInfoDto();
+        postInfoDto2.setBrandName("애플");
+        postInfoDto2.setProductName("아이폰 15");
+        postInfoDto2.setCategory("핸드폰");
+        postInfoDto2.setProductPrice("100");
+        postInfoDto2.setDescription("아이폰 15는 C타입입니다.");
+        postInfoDto2.setLink("www.iphone.com");
     }
 
     @Test
     void updatePost_Successful() {
         // Given
         Long postId = 1L;
+        Long postId2 = 2L;
+
+        Post existingPost = postInfoDto2.to_Entity();
+        existingPost.setId(postId);
+
         PostUpdateResponseDto postUpdateDto = new PostUpdateResponseDto();
         postUpdateDto.setBrandName("나이키");
         postUpdateDto.setProductName("범고래");
@@ -41,15 +66,6 @@ class ProductServiceTest {
         postUpdateDto.setProductPrice("200");
         postUpdateDto.setDescription("범고래 신발 너무 흔해");
         postUpdateDto.setLink("www.nike.com");
-
-        Post existingPost = new Post();
-        existingPost.setId(postId);
-        existingPost.setBrandName("애플");
-        existingPost.setProductName("아이폰 15");
-        existingPost.setCategory("핸드폰");
-        existingPost.setProductPrice("100");
-        existingPost.setDescription("아이폰 15는 C타입입니다.");
-        existingPost.setLink("www.iphone.com");
 
         when(productRepository.findPostById(postId)).thenReturn(existingPost);
         when(productRepository.save(any(Post.class))).thenReturn(existingPost);
@@ -90,15 +106,8 @@ class ProductServiceTest {
     public void testDeletePostByPostId() {
         // given
         Long postId = 1L;
-        Post post = new Post();
+        Post post = postInfoDto2.to_Entity();
         post.setId(postId);
-        post.setBrandName("애플");
-        post.setProductName("아이폰 15");
-        post.setCategory("핸드폰");
-        post.setProductPrice("100");
-        post.setDescription("아이폰 15는 C타입입니다.");
-        post.setLink("www.iphone.com");
-        post.setImageKey("qwer1234");
 
         when(productRepository.findPostById(postId)).thenReturn(post);
 

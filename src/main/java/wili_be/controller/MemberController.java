@@ -106,10 +106,10 @@ public class MemberController {
     public ResponseEntity<String> validateUserName(@PathVariable String username) {
         if (memberService.validateExistingMember(username)) {
             return ResponseEntity.ok()
-                    .body("존재하지 않는 username입니다.");
+                    .body("message: " + "사용가능 합니다.");
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("이미 존재하는 username입니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("message: " + "중복");
         }
     }
 

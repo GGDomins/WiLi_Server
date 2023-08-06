@@ -6,6 +6,11 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+    # 파일 업로드 최대 크기 설정 (단위: 바이트)
+    servlet:
+      multipart:
+        max-file-size: 3MB
+        max-request-size: 3MB
   client:
     id: ${NAVER_CLIENT_ID}
     secret: ${NAVER_CLIENT_SECRET}

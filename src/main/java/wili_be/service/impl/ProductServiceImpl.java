@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             productInfo = objectMapper.readValue(productInfoJson, PostInfoDto.class);
 
-            byte[] thumbnailImage = createThumbnail(file.getBytes(), 100, 100);
+            byte[] thumbnailImage = createThumbnail(file.getBytes(), 200, 200);
 
             String key = amazonS3Service.putObject(file.getBytes(), "originalImage" + file.getOriginalFilename());
             String thumbnailImagekey = amazonS3Service.putObject(thumbnailImage,"thumbnailImage" + file.getOriginalFilename());

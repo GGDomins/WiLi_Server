@@ -156,7 +156,9 @@ public class MemberController {
         try {
             memberService.removeMember(snsId);
             List<String> imageKeys = productService.getImagesKeysByMember(snsId);
+            List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
             amazonS3Service.deleteImagesByKeys(imageKeys);
+            amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
             redisService.setAccessTokenBlackList(accessToken);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {

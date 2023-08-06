@@ -28,6 +28,7 @@ public class Post {
     private String description;
     private String link;
     private String imageKey;
+    private String thumbnailImageKey;
 }
 
 

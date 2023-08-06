@@ -21,6 +21,8 @@ public class PostDto {
         private String description;
         private String link;
         private String imageKey;
+        private String thumbnailImageKey;
+
 
         public Post to_Entity() {
             return Post.builder()
@@ -31,6 +33,7 @@ public class PostDto {
                     .description(description)
                     .link(link)
                     .imageKey(imageKey)
+                    .thumbnailImageKey(thumbnailImageKey)
                     .build();
         }
     }
@@ -66,6 +69,8 @@ public class PostDto {
         private String description;
         private String link;
         private String imageKey;
+        private String thumbnailImageKey;
+
 
         public PostResponseDto(Post post) {
             this.id = post.getId();
@@ -76,6 +81,7 @@ public class PostDto {
             this.description = post.getDescription();
             this.link = post.getLink();
             this.imageKey = post.getImageKey();
+            thumbnailImageKey = post.getThumbnailImageKey();
         }
     }
 
@@ -88,12 +94,14 @@ public class PostDto {
         private String brandName;
         private String productName;
         private String imageKey;
+        private String thumbnailImageKey;
 
         public PostMainPageResponse(Post post) {
             this.id = post.getId();
             this.brandName = post.getBrandName();
             this.productName = post.getProductName();
             this.imageKey = post.getImageKey();
+            this.thumbnailImageKey = post.getThumbnailImageKey();
         }
     }
 }

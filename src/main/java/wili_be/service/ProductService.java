@@ -14,6 +14,8 @@ public interface ProductService {
 
     List<String> getImagesKeysByMember(String snsId);
 
+    List<String> getThumbnailImagesKeysByMember(String snsId);
+
     List<byte[]> getImagesByMember(String snsId) throws IOException;
 
     byte[] getImageByMember(String imageKey) throws IOException;

@@ -43,8 +43,11 @@ public class ProductServiceImpl implements ProductService {
 
             byte[] thumbnailImage = createThumbnail(file.getBytes(), 100, 100);
 
-            String key = amazonS3Service.putObject(thumbnailImage, file.getOriginalFilename());
+            String key = amazonS3Service.putObject(file.getBytes(), "originalImage" + file.getOriginalFilename());
+            String thumbnailImagekey = amazonS3Service.putObject(thumbnailImage,"thumbnailImage" + file.getOriginalFilename());
+
             productInfo.setImageKey(key);
+            productInfo.setThumbnailImageKey(thumbnailImagekey);
             savePost(productInfo, snsId);
         } catch (UsernameNotFoundException e) {
             throw new RuntimeException(e.getMessage());
@@ -64,19 +67,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<String> getThumbnailImagesKeysByMember(String snsId) {
+        List<String> ThumbnailimageList = productRepository.findThumbnailImageKeysBysnsId(snsId);
+        if (ThumbnailimageList.isEmpty()) {
+            throw new NoSuchElementException("이미지가 존재하지 않습니다.");
+        }
+        return ThumbnailimageList;
+    }
+    @Override
     public List<String> getImagesKeysByMember(String snsId) {
         List<String> imageList = productRepository.findImageKeysBysnsId(snsId);
         if (imageList.isEmpty()) {
-            return null;
+            throw new NoSuchElementException("이미지가 존재하지 않습니다.");
         }
         return imageList;
     }
 
     @Override
     public List<byte[]> getImagesByMember(String snsId) throws IOException {
-        List<String> imageKeyList = getImagesKeysByMember(snsId);
-        log.info(imageKeyList.toString());
-        log.info("imageInfo");
+        List<String> imageKeyList = getThumbnailImagesKeysByMember(snsId);
+
         try {
             List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
             if (images.isEmpty()) {
@@ -234,6 +244,7 @@ public class ProductServiceImpl implements ProductService {
                 .description(productInfo.getDescription())
                 .link(productInfo.getLink())
                 .imageKey(productInfo.getImageKey())
+                .thumbnailImageKey(productInfo.getThumbnailImageKey())
                 .member(member)
                 .build();
         productRepository.save(post);

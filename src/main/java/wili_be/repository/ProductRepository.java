@@ -15,5 +15,8 @@ public interface ProductRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Member m JOIN m.posts p WHERE m.snsId = :snsId")
     List<Post> findPostBySnsId(@Param("snsId") String snsId);
 
+    @Query("SELECT p.thumbnailImageKey FROM Member m JOIN m.posts p WHERE m.snsId = :snsId")
+    List<String> findThumbnailImageKeysBysnsId(@Param("snsId") String snsId);
+
     Post findPostById(Long Id);
 }

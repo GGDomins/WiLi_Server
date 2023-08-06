@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static wili_be.dto.ImageDto.*;
+//import static wili_be.dto.ImageDto.*;
 import static wili_be.dto.PostDto.*;
 
 @RestController
@@ -37,24 +37,24 @@ public class ProductController {
     private int StatusResult;
 
     // 이미지 조회 엔드포인트
-    @PostMapping("/products/images-test")
-    public ResponseEntity<byte[]> getImageByKey(@RequestBody ImageRequestDto requestDto) {
-        String key = requestDto.getKey();
-        try {
-            byte[] imageBytes = amazonS3Service.getImageBytesByKey(key);
-
-            if (imageBytes != null) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.IMAGE_JPEG);
-
-                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+//    @PostMapping("/products/images-test")
+//    public ResponseEntity<byte[]> getImageByKey(@RequestBody ImageRequestDto requestDto) {
+//        String key = requestDto.getKey();
+//        try {
+//            byte[] imageBytes = amazonS3Service.getImageBytesByKey(key);
+//
+//            if (imageBytes != null) {
+//                HttpHeaders headers = new HttpHeaders();
+//                headers.setContentType(MediaType.IMAGE_JPEG);
+//
+//                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+//            } else {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
+//    }
 
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(@RequestParam("file") MultipartFile file, @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
@@ -183,6 +183,7 @@ public class ProductController {
 
             if (member.getSnsId().equals(snsId)) {
                 productService.deletePostByPostId(PostId);
+                amazonS3Service.deleteImageByKey(post.getThumbnailImageKey());
                 amazonS3Service.deleteImageByKey(post.getImageKey());
                 return ResponseEntity.ok()
                         .body("delete 성공!");

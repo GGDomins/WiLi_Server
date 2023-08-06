@@ -52,7 +52,6 @@ public class OAuthController {
         try {
             oauthToken = naverLoginBO.getAccessToken(code, state);
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
-
             Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
@@ -94,7 +93,6 @@ public class OAuthController {
         try {
             oauthToken = kakaoLoginBO.getAccessToken(code);
             SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
-
             Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
 
             String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
@@ -114,11 +112,15 @@ public class OAuthController {
                     .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                     .header("accessToken", accessToken)
                     .body("Name: " + userInfo.getNickname() + ", Email: " + userInfo.getEmail() + ", id: " + userInfo.getId() + ", AccessToken: " + tokenDto.getAccessToken() + ", RefreshToken: " + tokenDto.getRefreshToken());
-        } catch (HttpClientErrorException.BadRequest ex) {
-            return ResponseEntity.badRequest().body("Kakao API Bad Request: " + ex.getStatusCode() + " " + ex.getStatusText());
-        } catch (Exception ex) {
+        } catch (IOException e) {
+            // IOException 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get user profile.");
+        } catch (JSONException e) {
+            // JSONException 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to parse Kakao API response.");
+        } catch (Exception e) {
             // 그 외 모든 예외 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred during Kakao login: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during Kakao callback.");
         }
     }
 

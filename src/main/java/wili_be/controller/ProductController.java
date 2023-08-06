@@ -39,14 +39,12 @@ public class ProductController {
 
     @PostMapping("/products/upload")
     public ResponseEntity<String> uploadImage(@RequestBody MultipartFile file) {
-        log.info(file.getContentType());
-        log.info(file.getOriginalFilename());
         try {
             String fileName = file.getOriginalFilename();
             String key = amazonS3Service.putObject(file, fileName);
             return ResponseEntity.status(HttpStatus.OK).body("key: " + key);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 업로드에 실패했습니다." + e.getMessage());
         }
     }
 
@@ -66,7 +64,6 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
         } catch (Exception e) {
-            log.error("Failed to load image from S3.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -168,7 +165,7 @@ public class ProductController {
             String jsonPost = productService.changePostToJson(updatePost);
             return ResponseEntity.ok(jsonPost);
         }
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("다른 사용자가 product를 수정하려고 시도합니다.");
 
     }
@@ -202,7 +199,7 @@ public class ProductController {
                 return ResponseEntity.ok()
                         .body("delete 성공!");
             } else {
-                return ResponseEntity.badRequest()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("다른 사용자가 product를 수정하려고 시도합니다.");
             }
 
@@ -210,7 +207,7 @@ public class ProductController {
             return ResponseEntity.ok()
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest()
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.toString());
         }
 

@@ -37,7 +37,6 @@ public class MemberController {
         if (accessToken == null) {
             return createUnauthorizedResponse("접근 토큰이 없습니다");
         }
-
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
@@ -57,9 +56,8 @@ public class MemberController {
     ResponseEntity<String> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         log.info(refreshToken);
         if (redisService.exists(refreshToken)) {
+
             String snsId = redisService.getValues(refreshToken);
-            log.info(snsId);
-            log.info("refreshToken 값 추출");
             TokenDto newToken = tokenService.createTokensFromRefreshToken(snsId, refreshToken);
             ResponseCookie responseCookie = memberService.createHttpOnlyCookie(newToken.getRefreshToken());
             String new_accessToken = newToken.getAccessToken();
@@ -69,14 +67,14 @@ public class MemberController {
                     .header("accessToken", new_accessToken)
                     .body("create accessToken from refreshToken finish");
         }
-        return new ResponseEntity<>("there is no RefreshToken in redis", HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("there is no RefreshToken in redis");
     }
 
     @PostMapping("/users/logout")
     ResponseEntity<String> logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
         redisService.setAccessTokenBlackList(accessToken);
-        log.info("logout");
         return ResponseEntity.ok("set" + accessToken + "blackList");
     }
 
@@ -160,9 +158,6 @@ public class MemberController {
             List<String> imageKeys = productService.getImagesKeysByMember(snsId);
             amazonS3Service.deleteImagesByKeys(imageKeys);
             redisService.setAccessTokenBlackList(accessToken);
-            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
-        } catch (NullPointerException e) {
-            memberService.removeMember(snsId);
             return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
         } catch (NoSuchElementException e) {
             return ResponseEntity.ok().body(e.getMessage());

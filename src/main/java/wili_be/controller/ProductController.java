@@ -36,26 +36,6 @@ public class ProductController {
     private final TokenService tokenService;
     private int StatusResult;
 
-    // 이미지 조회 엔드포인트
-//    @PostMapping("/products/images-test")
-//    public ResponseEntity<byte[]> getImageByKey(@RequestBody ImageRequestDto requestDto) {
-//        String key = requestDto.getKey();
-//        try {
-//            byte[] imageBytes = amazonS3Service.getImageBytesByKey(key);
-//
-//            if (imageBytes != null) {
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.IMAGE_JPEG);
-//
-//                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-//            } else {
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//            }
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//        }
-//    }
-
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(@RequestParam("file") MultipartFile file, @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);

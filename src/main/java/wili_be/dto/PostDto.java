@@ -95,11 +95,14 @@ public class PostDto {
         private String productName;
         private String imageKey;
         private String thumbnailImageKey;
+        private String category;
+
 
         public PostMainPageResponse(Post post) {
             this.id = post.getId();
             this.brandName = post.getBrandName();
             this.productName = post.getProductName();
+            this.category = post.getCategory();
             this.imageKey = post.getImageKey();
             this.thumbnailImageKey = post.getThumbnailImageKey();
         }

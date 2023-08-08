@@ -168,7 +168,7 @@ public class ProductServiceImpl implements ProductService {
             post.setProductName(postUpdateDto.getProductName());
         }
         if (postUpdateDto.getCategory() != null) {
-            post.setCategory(postUpdateDto.getCategory());
+            post.setCategoryList(postUpdateDto.getCategory());
         }
         if (postUpdateDto.getProductPrice() != null) {
             post.setProductPrice(postUpdateDto.getProductPrice());
@@ -243,6 +243,21 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    public List<PostMainPageResponse> randomFeed(Member member) {
+        List<String> favoriteCategories = Arrays.asList(member.getFavorites().split(","));
+        List<Post> posts = productRepository.findPostsMatchingFavoriteCategories(favoriteCategories);
+        if (posts.isEmpty()) {
+            throw new NoSuchElementException("사용자의 카테고리에 맞는 피드가 없습니다.");
+        } else {
+            List<PostMainPageResponse> postResponseDtoList = posts.stream()
+                    .map(PostMainPageResponse::new)
+                    .collect(Collectors.toList());
+            return postResponseDtoList;
+        }
+    }
+
+
+
     private void savePost(PostInfoDto productInfo, String snsId) {
         Optional<Member> member_op = memberService.findMemberById(snsId);
         Member member = member_op.get();
@@ -250,7 +265,7 @@ public class ProductServiceImpl implements ProductService {
                 .member(member)
                 .brandName(productInfo.getBrandName())
                 .productName(productInfo.getProductName())
-                .category(productInfo.getCategory())
+                .categoryList(productInfo.getCategory())
                 .productPrice(productInfo.getProductPrice())
                 .description(productInfo.getDescription())
                 .link(productInfo.getLink())

@@ -14,14 +14,13 @@ import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
+import wili_be.service.MemberService;
 import wili_be.service.ProductService;
 import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //import static wili_be.dto.ImageDto.*;
 import static wili_be.dto.PostDto.*;
@@ -34,6 +33,7 @@ public class ProductController {
     private final ProductService productService;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
+    private final MemberService memberService;
     private int StatusResult;
 
     @PostMapping("/products/add")
@@ -186,7 +186,38 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.toString());
         }
+    }
+    @GetMapping("/random-feed")
+    ResponseEntity<?> randomFeed(HttpServletRequest httpRequest) throws IOException {
+        String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
+        }
+        try {
+            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+            Optional<Member> member = memberService.findMemberById(snsId);
+            if (member.isPresent()) {
+                List<PostMainPageResponse> posts = productService.randomFeed(member.get());
+                List<String> post_json = productService.changePostDtoToJson(posts);
+                return ResponseEntity.ok()
+                        .body(post_json);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("member를 찾을 수 없습니다.");
+            }
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
 

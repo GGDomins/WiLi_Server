@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Builder
@@ -23,7 +24,8 @@ public class Post {
     private Member member;
     private String brandName;
     private String productName;
-    private String category;
+    @ElementCollection
+    private List<String> categoryList;
     private String productPrice;
     private String description;
     private String link;

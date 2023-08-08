@@ -2,6 +2,7 @@ package wili_be.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.dto.PostDto;
+import wili_be.entity.Member;
 import wili_be.entity.Post;
 
 import java.io.IOException;
@@ -37,6 +38,8 @@ public interface ProductService {
     List<String> changeBytesToJson(List<byte[]> bytes);
 
     List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList);
+
+    List<PostMainPageResponse> randomFeed(Member member);
 
     void deletePostByPostId(Long PostId);
 }

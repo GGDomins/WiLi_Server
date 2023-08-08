@@ -6,10 +6,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
+import wili_be.dto.MemberDto;
+import wili_be.dto.SearchDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -19,11 +22,15 @@ import wili_be.service.ProductService;
 import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 //import static wili_be.dto.ImageDto.*;
+import static wili_be.dto.MemberDto.*;
 import static wili_be.dto.PostDto.*;
+import static wili_be.dto.SearchDto.*;
 
 @RestController
 @Slf4j
@@ -217,6 +224,47 @@ public class ProductController {
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/search/{content}")
+    public ResponseEntity<?> searchPostOrMember(HttpServletRequest httpServletRequest, @RequestBody SearchRequestDto requestDto) {
+        String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
+
+        if (accessToken == null) {
+            return createUnauthorizedResponse("접근 토큰이 없습니다");
+        }
+        StatusResult = tokenService.validateAccessToken(accessToken);
+
+        if (StatusResult == StatusCode.UNAUTHORIZED) {
+            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+        }
+        if (StatusResult != StatusCode.OK) {
+            return createBadRequestResponse("잘못된 요청입니다");
+        }
+        try {
+            String keyword = requestDto.getKeyword();
+            String type = requestDto.getType();
+            if (type.equals("brand")) {
+                List<PostMainPageResponse> postResponseDto = productService.getPostResponseDtoFromBrandName(keyword);
+                List<String> response = productService.changePostDtoToJson(postResponseDto);
+                return ResponseEntity.ok().body(response);
+            }
+            else if (type.equals("user")) {
+                MemberResponseDto memberResponseDto = memberService.findMemberByUserName(keyword);
+                String memberResponseJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
+                return ResponseEntity.ok().body(memberResponseJson);
+            }
+            else {
+                List<PostMainPageResponse> postResponseDto = productService.getPostResponseDtoFromProductName(keyword);
+                List<String> response = productService.changePostDtoToJson(postResponseDto);
+                return ResponseEntity.ok().body(response);
+            }
+
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

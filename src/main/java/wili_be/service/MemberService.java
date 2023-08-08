@@ -9,6 +9,7 @@ import wili_be.dto.MemberDto;
 import wili_be.dto.MemberDto.Member_info_Dto;
 import wili_be.entity.Member;
 
+import java.util.List;
 import java.util.Optional;
 
 import static wili_be.dto.MemberDto.*;
@@ -24,4 +25,5 @@ public interface MemberService{
     String changeMemberUpdateDtoToJson(MemberResponseDto memberUpdateResponseDto);
     String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto);
     boolean validateExistingMember(String username);
+    MemberResponseDto findMemberByUserName(String username);
     }

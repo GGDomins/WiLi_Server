@@ -2,11 +2,9 @@ package wili_be.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.lettuce.core.StrAlgoArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -133,6 +131,31 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
         return postResponseDto;
+    }
+
+    @Override
+    public List<PostMainPageResponse> getPostResponseDtoFromProductName(String productName) {
+        List<Post> postList = productRepository.findPostsByProductName(productName);
+        if (postList.isEmpty()) {
+            throw new NoSuchElementException("해당 키워드에 맞는 제품이 없습니다.");
+        } else {
+            List<PostMainPageResponse> postResponseDtoList = postList.stream()
+                    .map(PostMainPageResponse::new)
+                    .collect(Collectors.toList());
+            return postResponseDtoList;
+        }
+    }
+    @Override
+    public List<PostMainPageResponse> getPostResponseDtoFromBrandName(String brandName) {
+        List<Post> postList = productRepository.findPostsByBrandName(brandName);
+        if (postList.isEmpty()) {
+            throw new NoSuchElementException("해당 키워드에 맞는 제품이 없습니다.");
+        } else {
+            List<PostMainPageResponse> postResponseDtoList = postList.stream()
+                    .map(PostMainPageResponse::new)
+                    .collect(Collectors.toList());
+            return postResponseDtoList;
+        }
     }
 
     @Override

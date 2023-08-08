@@ -8,6 +8,8 @@ import wili_be.entity.Member;
 import wili_be.entity.Post;
 
 import java.util.List;
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p.imageKey FROM Member m JOIN m.posts p WHERE m.snsId = :snsId")
     List<String> findImageKeysBysnsId(@Param("snsId") String snsId);
@@ -19,6 +21,10 @@ public interface ProductRepository extends JpaRepository<Post, Long> {
     List<String> findThumbnailImageKeysBysnsId(@Param("snsId") String snsId);
     @Query("SELECT p FROM Post p WHERE p.category IN :favoriteCategories")
     List<Post> findPostsMatchingFavoriteCategories(@Param("favoriteCategories") List<String> favoriteCategories);
+
+    List<Post> findPostsByBrandName(String brandName);
+
+    List<Post> findPostsByProductName(String productName);
 
     Post findPostById(Long Id);
 }

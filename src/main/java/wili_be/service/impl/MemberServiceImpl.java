@@ -55,6 +55,17 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         }
     }
 
+    @Override
+    public MemberResponseDto findMemberByUserName(String username) {
+        Optional<Member> optionalMember = memberRepository.findMemberByUsername(username);
+        if (optionalMember.isEmpty()) {
+            throw new UsernameNotFoundException("회원 이름을 검색할 수 없습니다.");
+        } else {
+            MemberResponseDto memberResponseDto = new MemberResponseDto(optionalMember.get());
+            return memberResponseDto;
+        }
+    }
+
     @Transactional
     @Override
     public void removeMember(String snsId) {

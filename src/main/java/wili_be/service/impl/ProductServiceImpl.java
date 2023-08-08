@@ -168,7 +168,7 @@ public class ProductServiceImpl implements ProductService {
             post.setProductName(postUpdateDto.getProductName());
         }
         if (postUpdateDto.getCategory() != null) {
-            post.setCategoryList(postUpdateDto.getCategory());
+            post.setCategory(postUpdateDto.getCategory());
         }
         if (postUpdateDto.getProductPrice() != null) {
             post.setProductPrice(postUpdateDto.getProductPrice());
@@ -265,7 +265,7 @@ public class ProductServiceImpl implements ProductService {
                 .member(member)
                 .brandName(productInfo.getBrandName())
                 .productName(productInfo.getProductName())
-                .categoryList(productInfo.getCategory())
+                .category(productInfo.getCategory())
                 .productPrice(productInfo.getProductPrice())
                 .description(productInfo.getDescription())
                 .link(productInfo.getLink())

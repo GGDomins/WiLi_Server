@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import net.bytebuddy.utility.nullability.NeverNull;
 import wili_be.entity.Post;
 
-import java.util.List;
-
 public class PostDto {
 
     @Data
@@ -18,7 +16,7 @@ public class PostDto {
     public static class PostInfoDto {
         private String brandName;
         private String productName;
-        private List<String> category;
+        private String category;
         private String productPrice;
         private String description;
         private String link;
@@ -30,7 +28,7 @@ public class PostDto {
             return Post.builder()
                     .brandName(brandName)
                     .productName(productName)
-                    .categoryList(category)
+                    .category(category)
                     .productPrice(productPrice)
                     .description(description)
                     .link(link)
@@ -52,7 +50,7 @@ public class PostDto {
     public static class PostUpdateResponseDto {
         private String brandName;
         private String productName;
-        private List<String> category;
+        private String category;
         private String productPrice;
         private String description;
         private String link;
@@ -66,7 +64,7 @@ public class PostDto {
         private Long id;
         private String brandName;
         private String productName;
-        private List<String> category;
+        private String category;
         private String productPrice;
         private String description;
         private String link;
@@ -78,7 +76,7 @@ public class PostDto {
             this.id = post.getId();
             this.brandName = post.getBrandName();
             this.productName = post.getProductName();
-            this.category = post.getCategoryList();
+            this.category = post.getCategory();
             this.productPrice = post.getProductPrice();
             this.description = post.getDescription();
             this.link = post.getLink();
@@ -97,14 +95,14 @@ public class PostDto {
         private String productName;
         private String imageKey;
         private String thumbnailImageKey;
-        private List<String> category;
+        private String category;
 
 
         public PostMainPageResponse(Post post) {
             this.id = post.getId();
             this.brandName = post.getBrandName();
             this.productName = post.getProductName();
-            this.category = post.getCategoryList();
+            this.category = post.getCategory();
             this.imageKey = post.getImageKey();
             this.thumbnailImageKey = post.getThumbnailImageKey();
         }

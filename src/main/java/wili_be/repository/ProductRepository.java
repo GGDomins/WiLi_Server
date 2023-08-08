@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p.thumbnailImageKey FROM Member m JOIN m.posts p WHERE m.snsId = :snsId")
     List<String> findThumbnailImageKeysBysnsId(@Param("snsId") String snsId);
-    @Query("SELECT p FROM Post p WHERE p.categoryList IN :favoriteCategories")
+    @Query("SELECT p FROM Post p WHERE p.category IN :favoriteCategories")
     List<Post> findPostsMatchingFavoriteCategories(@Param("favoriteCategories") List<String> favoriteCategories);
 
     Post findPostById(Long Id);

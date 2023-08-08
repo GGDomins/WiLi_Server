@@ -107,7 +107,14 @@ public class ProductController {
         Map<String, Object> response = new HashMap<>();
         response.put("image", JsonImage);
         response.put("post", JsonPost);
-        return ResponseEntity.ok().body(response);
+
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        if (productService.validateUserFromPostAndSnsId(snsId, PostId)) {
+            return ResponseEntity.ok().body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(response);
+        }
     }
 
     @Transactional

@@ -142,6 +142,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Boolean validateUserFromPostAndSnsId(String snsId, Long postId) {
+        Post post = getPostFromId(postId);
+        Member member = post.getMember();
+        if (Objects.equals(member.getSnsId(), snsId)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto) {
         Post post = productRepository.findPostById(postId);
 

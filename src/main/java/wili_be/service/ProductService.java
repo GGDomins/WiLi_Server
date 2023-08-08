@@ -26,6 +26,8 @@ public interface ProductService {
 
     Post getPostFromId(Long id);
 
+    Boolean validateUserFromPostAndSnsId(String snsId, Long postId);
+
     PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto);
 
     String changePostToJson(PostResponseDto post);

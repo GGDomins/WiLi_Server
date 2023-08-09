@@ -135,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<PostMainPageResponse> getPostResponseDtoFromProductName(String productName) {
-        List<Post> postList = productRepository.findPostsByProductName(productName);
+        List<Post> postList = productRepository.findPostsByProductName("%"+productName+"%");
         if (postList.isEmpty()) {
             throw new NoSuchElementException("해당 키워드에 맞는 제품이 없습니다.");
         } else {

@@ -134,15 +134,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<PostMainPageResponse> getPostResponseDtoFromProductName(String productName) {
+    public SearchPageResponse getPostResponseDtoFromProductName(String productName) {
         List<Post> postList = productRepository.findPostsByProductName("%"+productName+"%");
+        List<String> imageKeyList = new ArrayList<>();
+
+        for (Post post : postList) {
+            imageKeyList.add(post.getThumbnailImageKey());
+        }
         if (postList.isEmpty()) {
             throw new NoSuchElementException("해당 키워드에 맞는 제품이 없습니다.");
         } else {
             List<PostMainPageResponse> postResponseDtoList = postList.stream()
                     .map(PostMainPageResponse::new)
                     .collect(Collectors.toList());
-            return postResponseDtoList;
+            SearchPageResponse response = new SearchPageResponse();
+            Map<String, List<PostMainPageResponse>> product = new HashMap<>();
+            Map<String, List<String>> imageKey = new HashMap<>();
+
+            product.put("product", postResponseDtoList);
+            imageKey.put("image", imageKeyList);
+            response.setProduct(product);
+            response.setImageKey(imageKey);
+            return response;
         }
     }
     @Override

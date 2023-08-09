@@ -244,15 +244,25 @@ public class ProductController {
                 return ResponseEntity.ok().body(memberResponseJson);
             }
             else {
-                List<PostMainPageResponse> postResponseDto = productService.getPostResponseDtoFromProductName(query);
-                List<String> response = productService.changePostDtoToJson(postResponseDto);
-                return ResponseEntity.ok().body(response);
+                SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
+                List<PostMainPageResponse> productList = response.getProduct().get("product");
+                List<String> imageKeys = response.getImageKey().get("image");
+                List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
+
+                List<String> product_json = productService.changePostDtoToJson(productList);
+                List<String> image_json = productService.changeBytesToJson(images);
+                Map<String, Object> Map_response = new HashMap<>();
+                Map_response.put("images", image_json);
+                Map_response.put("posts", product_json);
+                return ResponseEntity.ok().body(Map_response);
             }
 
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import net.bytebuddy.utility.nullability.NeverNull;
 import wili_be.entity.Post;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class PostDto {
 
     @Data
@@ -107,4 +111,15 @@ public class PostDto {
             this.thumbnailImageKey = post.getThumbnailImageKey();
         }
     }
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SearchPageResponse {
+
+        private Map<String, List<PostMainPageResponse>> product = new HashMap<>();
+        private Map<String, List<String>> imageKey = new HashMap<>();
+
+    }
+
 }

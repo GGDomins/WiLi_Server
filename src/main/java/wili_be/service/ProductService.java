@@ -7,6 +7,7 @@ import wili_be.entity.Post;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static wili_be.dto.PostDto.*;
 
@@ -24,8 +25,8 @@ public interface ProductService {
     List<PostMainPageResponse> getPostByMember(String snsId);
 
     PostResponseDto getPostResponseDtoFromId(Long id);
-    List<PostMainPageResponse> getPostResponseDtoFromProductName(String productName);
 
+    SearchPageResponse getPostResponseDtoFromProductName(String productName);
     List<PostMainPageResponse> getPostResponseDtoFromBrandName(String brandName);
 
     Post getPostFromId(Long id);

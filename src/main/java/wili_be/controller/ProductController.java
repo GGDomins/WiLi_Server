@@ -111,9 +111,12 @@ public class ProductController {
 
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         if (productService.validateUserFromPostAndSnsId(snsId, PostId)) {
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok()
+                    .header("isMyPost",String.valueOf(true))
+                    .body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.ok()
+                    .header("isMyPost", String.valueOf(false))
                     .body(response);
         }
     }
@@ -251,6 +254,7 @@ public class ProductController {
 
                 List<String> product_json = productService.changePostDtoToJson(productList);
                 List<String> image_json = productService.changeBytesToJson(images);
+
                 Map<String, Object> Map_response = new HashMap<>();
                 Map_response.put("images", image_json);
                 Map_response.put("posts", product_json);

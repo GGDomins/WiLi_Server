@@ -147,12 +147,14 @@ public class ProductServiceImpl implements ProductService {
             List<PostMainPageResponse> postResponseDtoList = postList.stream()
                     .map(PostMainPageResponse::new)
                     .collect(Collectors.toList());
+
             SearchPageResponse response = new SearchPageResponse();
             Map<String, List<PostMainPageResponse>> product = new HashMap<>();
             Map<String, List<String>> imageKey = new HashMap<>();
 
             product.put("product", postResponseDtoList);
             imageKey.put("image", imageKeyList);
+
             response.setProduct(product);
             response.setImageKey(imageKey);
             return response;

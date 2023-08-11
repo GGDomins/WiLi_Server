@@ -43,7 +43,7 @@ public interface ProductService {
 
     List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList);
 
-    List<PostMainPageResponse> randomFeed(Member member);
+    RandomFeedDto randomFeed(Member member);
 
     void deletePostByPostId(Long PostId);
 }

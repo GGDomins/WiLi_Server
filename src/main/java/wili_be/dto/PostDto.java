@@ -121,5 +121,15 @@ public class PostDto {
         private Map<String, List<String>> imageKey = new HashMap<>();
 
     }
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RandomFeedDto {
+
+        private List<PostMainPageResponse> pageResponses;
+        private List<String> imageKeyList;
+
+    }
 
 }

@@ -210,10 +210,19 @@ public class ProductController {
             String snsId = jwtTokenProvider.getUsersnsId(accessToken);
             Optional<Member> member = memberService.findMemberById(snsId);
             if (member.isPresent()) {
-                List<PostMainPageResponse> posts = productService.randomFeed(member.get());
-                List<String> post_json = productService.changePostDtoToJson(posts);
-                return ResponseEntity.ok()
-                        .body(post_json);
+                RandomFeedDto response = productService.randomFeed(member.get());
+                List<PostMainPageResponse> posts = response.getPageResponses();
+                List<String> imageKeysList = response.getImageKeyList();
+                List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
+
+                List<String> image_json = productService.changeBytesToJson(imageList);
+                List<String> product_json = productService.changePostDtoToJson(posts);
+
+                Map<String, Object> Map_response = new HashMap<>();
+                Map_response.put("images", image_json);
+                Map_response.put("posts", product_json);
+                return ResponseEntity.ok().body(Map_response);
+
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("member를 찾을 수 없습니다.");

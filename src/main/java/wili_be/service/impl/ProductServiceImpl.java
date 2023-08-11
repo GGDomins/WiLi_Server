@@ -281,7 +281,9 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    public List<PostMainPageResponse> randomFeed(Member member) {
+    public RandomFeedDto randomFeed(Member member) {
+        RandomFeedDto randomFeedDto = new RandomFeedDto();
+        List<String> imageKeyList = new ArrayList<>();
         List<String> favoriteCategories = Arrays.asList(member.getFavorites().split(","));
         List<Post> posts = productRepository.findPostsMatchingFavoriteCategories(favoriteCategories);
         if (posts.isEmpty()) {
@@ -290,7 +292,12 @@ public class ProductServiceImpl implements ProductService {
             List<PostMainPageResponse> postResponseDtoList = posts.stream()
                     .map(PostMainPageResponse::new)
                     .collect(Collectors.toList());
-            return postResponseDtoList;
+            for (PostMainPageResponse response : postResponseDtoList) {
+                imageKeyList.add(response.getImageKey());
+            }
+            randomFeedDto.setPageResponses(postResponseDtoList);
+            randomFeedDto.setImageKeyList(imageKeyList);
+            return randomFeedDto;
         }
     }
 

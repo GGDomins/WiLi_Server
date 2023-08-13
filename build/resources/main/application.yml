@@ -1,0 +1,86 @@
+spring:
+  mvc:
+    view:
+      prefix: "/WEB-INF/views/"
+      suffix: ".jsp"
+    hiddenmethod:
+      filter:
+        enabled: true
+    # 파일 업로드 최대 크기 설정 (단위: 바이트)
+    servlet:
+      multipart:
+        max-file-size: 10MB
+        max-request-size: 10MB
+  client:
+    id: ${NAVER_CLIENT_ID}
+    secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URL}
+    session-state: oauth_state
+  profile-api-url: https://openapi.naver.com/v1/nid/me
+
+  jwt:
+    secretKey: ${JWT_SECRET_KEY}
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    ssl: true
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+        time-between-eviction-runs: 30000
+        min-evictable-idle-time: 60000
+
+  kakao:
+    client_id: ${KAKAO_RESTAPI_KEY}
+    redirect_uri: ${KAKAO_REDIRECT_URL}
+    profile-api-url: https://kapi.kakao.com/v2/user/me
+    client_secret: ${KAKAO_CLIENT_SECRET}
+
+
+#  cloud:
+#    aws:
+#      stack:
+#        auto: false
+#      credentials:
+#        instanceProfile: false
+#      region:
+#        static: ${REGION}  # AWS 기본 리전을 설정
+#      bucket: ${S3_BUCKET}
+aws:
+  accessKeyId: ${BUCKETEER_AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${BUCKETEER_AWS_SECRET_ACCESS_KEY}
+  region: ${BUCKETEER_AWS_REGION}
+  bucketName: ${BUCKETEER_BUCKET_NAME}
+
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+    org.springframework.web: DEBUG
+    com.amazonaws: DEBUG
+
+
+server:
+  port: 9999

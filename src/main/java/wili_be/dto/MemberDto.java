@@ -2,8 +2,11 @@ package wili_be.dto;
 
 
 import lombok.*;
+import org.w3c.dom.stylesheets.LinkStyle;
 import wili_be.entity.LoginProvider;
 import wili_be.entity.Member;
+
+import java.util.List;
 
 
 public class MemberDto {
@@ -66,6 +69,7 @@ public class MemberDto {
         private LoginProvider loginProvider;
         private String username;
         private String birthday;
+        private String favorites;
 
         public MemberResponseDto(Member member) {
             this.name = member.getName();
@@ -73,6 +77,7 @@ public class MemberDto {
             this.loginProvider = member.getLoginProvider();
             this.username = member.getUsername();
             this.birthday = member.getBirthday();
+            this.favorites = member.getFavorites();
         }
     }
 

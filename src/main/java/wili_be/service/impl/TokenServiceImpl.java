@@ -56,11 +56,11 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public int validateAccessToken(String accessToken) {
+    public void validateAccessToken(String accessToken) {
         if (redisService.hasKeyBlackList(accessToken)) {
             throw new NotLoggedInException();
         } else if (jwtTokenProvider.validateToken(accessToken)) {
-            return StatusCode.OK;
+
         } else if (jwtTokenProvider.isTokenExpired(accessToken)) {
             throw new ExpiredTokenException();
         } else {

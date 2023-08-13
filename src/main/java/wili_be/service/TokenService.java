@@ -7,6 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 public interface TokenService {
     TokenDto createTokens(String snsId);
     TokenDto createTokensFromRefreshToken(String snsId, String old_refreshToken);
-    int validateAccessToken(String accessToken);
+    void validateAccessToken(String accessToken);
 
 }

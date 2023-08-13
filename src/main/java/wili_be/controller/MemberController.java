@@ -28,24 +28,14 @@ public class MemberController {
     private final TokenService tokenService;
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
-    private int StatusResult;
 
     @PostMapping("/users/auth")
     ResponseEntity<?> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
-
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
-        StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
+        tokenService.validateAccessToken(accessToken);
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Map<String, Object> response = new HashMap<>();
         response.put("snsId", snsId);
@@ -82,7 +72,7 @@ public class MemberController {
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
-        StatusResult = tokenService.validateAccessToken(accessToken);
+        tokenService.validateAccessToken(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
         String memberResponseDtoJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
@@ -111,7 +101,7 @@ public class MemberController {
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
-        StatusResult = tokenService.validateAccessToken(accessToken);
+        tokenService.validateAccessToken(accessToken);
         MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
         String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
         return ResponseEntity.ok().body(updateMemberJson);
@@ -124,7 +114,7 @@ public class MemberController {
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
-        StatusResult = tokenService.validateAccessToken(accessToken);
+        tokenService.validateAccessToken(accessToken);
         memberService.removeMember(snsId);
         List<String> imageKeys = productService.getImagesKeysByMember(snsId);
         List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import wili_be.controller.status.StatusCode;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
+import wili_be.exception.CustomExceptions;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.AmazonS3Service;
 import wili_be.service.MemberService;
@@ -25,6 +26,7 @@ import java.util.List;
 //import static wili_be.dto.ImageDto.*;
 import static wili_be.dto.MemberDto.*;
 import static wili_be.dto.PostDto.*;
+import static wili_be.exception.CustomExceptions.*;
 
 @RestController
 @Slf4j
@@ -42,19 +44,20 @@ public class ProductController {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         productService.addProduct(file, productInfoJson, snsId);
-        return ResponseEntity.ok("Product added successfully.");
+        return ResponseEntity.ok("Product 저장 성공.");
     }
 
     @GetMapping("/users/products")
@@ -62,15 +65,16 @@ public class ProductController {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         List<byte[]> images = productService.getImagesByMember(snsId);
@@ -90,15 +94,16 @@ public class ProductController {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
         PostResponseDto post = productService.getPostResponseDtoFromId(PostId);
         byte[] image = productService.getImageByMember(post.getImageKey());
@@ -112,7 +117,7 @@ public class ProductController {
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         if (productService.validateUserFromPostAndSnsId(snsId, PostId)) {
             return ResponseEntity.ok()
-                    .header("isMyPost",String.valueOf(true))
+                    .header("isMyPost", String.valueOf(true))
                     .body(response);
         } else {
             return ResponseEntity.ok()
@@ -126,15 +131,18 @@ public class ProductController {
         // http method가 다르면 uri는 겹쳐도 된다.
     ResponseEntity<String> updateProduct(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
+
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Post post = productService.getPostFromId(PostId);
@@ -144,9 +152,7 @@ public class ProductController {
             String jsonPost = productService.changePostToJson(updatePost);
             return ResponseEntity.ok(jsonPost);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("다른 사용자가 product를 수정하려고 시도합니다.");
-
+        throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
     }
 
     @Transactional
@@ -155,107 +161,87 @@ public class ProductController {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
-
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
 
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
-        try {
-            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            Post post = productService.getPostFromId(PostId);
-            Member member = post.getMember();
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        Post post = productService.getPostFromId(PostId);
+        Member member = post.getMember();
 
-            if (member.getSnsId().equals(snsId)) {
-                productService.deletePostByPostId(PostId);
-                amazonS3Service.deleteImageByKey(post.getThumbnailImageKey());
-                amazonS3Service.deleteImageByKey(post.getImageKey());
-                return ResponseEntity.ok()
-                        .body("delete 성공!");
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("다른 사용자가 product를 수정하려고 시도합니다.");
-            }
-
-        } catch (NullPointerException e) {
+        if (member.getSnsId().equals(snsId)) {
+            productService.deletePostByPostId(PostId);
+            amazonS3Service.deleteImageByKey(post.getThumbnailImageKey());
+            amazonS3Service.deleteImageByKey(post.getImageKey());
             return ResponseEntity.ok()
-                    .body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.toString());
+                    .body("delete 성공!");
+        } else {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
         }
     }
+
     @GetMapping("/random-feed")
     ResponseEntity<?> randomFeed(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
-        try {
-            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-            Optional<Member> member = memberService.findMemberById(snsId);
-            if (member.isPresent()) {
-                RandomFeedDto response = productService.randomFeed(member.get());
-                List<PostMainPageResponse> posts = response.getPageResponses();
-                List<String> imageKeysList = response.getImageKeyList();
-                List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
 
-                List<String> image_json = productService.changeBytesToJson(imageList);
-                List<String> product_json = productService.changePostDtoToJson(posts);
+        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+        Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "member가 존재하지 않습니다."));
+            RandomFeedDto response = productService.randomFeed(member);
+            List<PostMainPageResponse> posts = response.getPageResponses();
+            List<String> imageKeysList = response.getImageKeyList();
+            List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
 
-                Map<String, Object> Map_response = new HashMap<>();
-                Map_response.put("images", image_json);
-                Map_response.put("posts", product_json);
-                return ResponseEntity.ok().body(Map_response);
+            List<String> image_json = productService.changeBytesToJson(imageList);
+            List<String> product_json = productService.changePostDtoToJson(posts);
 
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("member를 찾을 수 없습니다.");
-            }
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+            Map<String, Object> Map_response = new HashMap<>();
+            Map_response.put("images", image_json);
+            Map_response.put("posts", product_json);
+            return ResponseEntity.ok().body(Map_response);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchPostOrMember(HttpServletRequest httpServletRequest,@RequestParam String query) {
+    public ResponseEntity<?> searchPostOrMember(HttpServletRequest httpServletRequest, @RequestParam String query) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
 
         if (accessToken == null) {
-            return createUnauthorizedResponse("접근 토큰이 없습니다");
+            throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
 
         if (StatusResult == StatusCode.UNAUTHORIZED) {
-            return createExpiredTokenResponse("접근 토큰이 만료되었습니다");
+            throw new ExpiredTokenException();
         }
+
         if (StatusResult != StatusCode.OK) {
-            return createBadRequestResponse("잘못된 요청입니다");
+            throw new BadRequestException();
         }
-        try {
             char firstLetter = query.charAt(0);
             if (firstLetter == '@') {
                 MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));
                 String memberResponseJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
                 return ResponseEntity.ok().body(memberResponseJson);
-            }
-            else {
+            } else {
                 SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
                 List<PostMainPageResponse> productList = response.getProduct().get("product");
                 List<String> imageKeys = response.getImageKey().get("image");
@@ -269,30 +255,5 @@ public class ProductController {
                 Map_response.put("posts", product_json);
                 return ResponseEntity.ok().body(Map_response);
             }
-
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private ResponseEntity<String> createUnauthorizedResponse(String message) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .header("WWW-Authenticate", "not-logged-in")
-                .body(message);
-    }
-
-    private ResponseEntity<String> createExpiredTokenResponse(String message) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .header("WWW-Authenticate", "Bearer error=\"invalid_token\"")
-                .body(message);
-    }
-
-    private ResponseEntity<String> createBadRequestResponse(String message) {
-        return ResponseEntity.badRequest().body(message);
     }
 }

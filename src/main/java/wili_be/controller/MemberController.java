@@ -162,20 +162,4 @@ public class MemberController {
         redisService.setAccessTokenBlackList(accessToken);
         return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
     }
-
-//    private ResponseEntity<String> createUnauthorizedResponse(String message) {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                .header("WWW-Authenticate", "not-logged-in")
-//                .body(message);
-//    }
-//
-//    private ResponseEntity<String> createExpiredTokenResponse(String message) {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                .header("WWW-Authenticate", "Bearer error=\"invalid_token\"")
-//                .body(message);
-//    }
-//
-//    private ResponseEntity<String> createBadRequestResponse(String message) {
-//        return ResponseEntity.badRequest().body(message);
-//    }
 }

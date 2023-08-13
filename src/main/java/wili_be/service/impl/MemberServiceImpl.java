@@ -57,37 +57,23 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
 
     @Override
     public MemberResponseDto findMemberByUserName(String username) {
-        Optional<Member> optionalMember = memberRepository.findMemberByUsername(username);
-        if (optionalMember.isEmpty()) {
-            throw new UsernameNotFoundException("회원 이름을 검색할 수 없습니다.");
-        } else {
-            MemberResponseDto memberResponseDto = new MemberResponseDto(optionalMember.get());
-            return memberResponseDto;
-        }
+        Member member = memberRepository.findMemberByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
+        MemberResponseDto memberResponseDto = new MemberResponseDto(member);
+        return memberResponseDto;
+
     }
 
     @Transactional
     @Override
     public void removeMember(String snsId) {
-        try {
-            Optional<Member> memberOptional = findMemberById(snsId);
-            Member member = memberOptional.get();
-            memberRepository.delete(member);
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException(e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        Member member = findMemberById(snsId).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
+        memberRepository.delete(member);
     }
 
     @Transactional
     @Override
     public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
-        Optional<Member> memberOptional = findMemberById(snsId);
-        if (memberOptional.isEmpty()) {
-            throw new NoSuchElementException("해당하는 멤버을 찾을 수 없습니다.");
-        }
-        Member member = memberOptional.get();
+        Member member = findMemberById(snsId).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
         // 요청으로 받은 필드들로 업데이트
         if (memberRequestDto.getName() != null) {
             member.setName(memberRequestDto.getName());

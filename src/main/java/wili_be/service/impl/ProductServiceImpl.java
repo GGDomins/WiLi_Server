@@ -47,10 +47,6 @@ public class ProductServiceImpl implements ProductService {
             productInfo.setImageKey(key);
             productInfo.setThumbnailImageKey(thumbnailImagekey);
             savePost(productInfo, snsId);
-        } catch (UsernameNotFoundException e) {
-            throw new RuntimeException(e.getMessage());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -101,9 +97,6 @@ public class ProductServiceImpl implements ProductService {
     public byte[] getImageByMember(String imageKey) throws IOException {
         try {
             byte[] image = amazonS3Service.getImageBytesByKey(imageKey);
-            if (image == null) {
-                return null;
-            }
             return image;
         } catch (Exception e) {
             e.printStackTrace();

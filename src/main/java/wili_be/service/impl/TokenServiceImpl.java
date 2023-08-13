@@ -7,12 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import wili_be.controller.status.StatusCode;
 import wili_be.dto.TokenDto;
+import wili_be.exception.CustomExceptions;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.security.JWT.TokenType;
 import wili_be.service.RedisService;
 import wili_be.service.TokenService;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static wili_be.exception.CustomExceptions.*;
 
 @Slf4j
 @Service
@@ -54,16 +57,14 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public int validateAccessToken(String accessToken) {
-        log.info("블랙리스트 여부");
         if (redisService.hasKeyBlackList(accessToken)) {
-            log.info("blackList 만들었음");
-            return StatusCode.BAD_REQUEST;
+            throw new NotLoggedInException();
         } else if (jwtTokenProvider.validateToken(accessToken)) {
             return StatusCode.OK;
         } else if (jwtTokenProvider.isTokenExpired(accessToken)) {
-            return StatusCode.UNAUTHORIZED;
+            throw new ExpiredTokenException();
         } else {
-            return StatusCode.BAD_REQUEST;
+            throw new BadRequestException();
         }
     }
 

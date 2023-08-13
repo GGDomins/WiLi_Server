@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import wili_be.controller.status.StatusCode;
-import wili_be.dto.MemberDto;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
-import wili_be.exception.CustomExceptions;
 import wili_be.security.JWT.JwtTokenProvider;
 import wili_be.service.*;
 
@@ -85,14 +83,6 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
         String memberResponseDtoJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);

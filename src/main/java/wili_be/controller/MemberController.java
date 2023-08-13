@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import wili_be.controller.status.StatusCode;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -115,15 +114,18 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
-        memberService.removeMember(snsId);
-        List<String> imageKeys = productService.getImagesKeysByMember(snsId);
-        List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
-        if (imageKeys.isEmpty() || thumbnailImageKeys.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지를 가져오는 과정에서 에러가 생겼습니다.");
+        try {
+            memberService.removeMember(snsId);
+            List<String> imageKeys = productService.getImagesKeysByMember(snsId);
+            List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
+            amazonS3Service.deleteImagesByKeys(imageKeys);
+            amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
+            redisService.setAccessTokenBlackList(accessToken);
+            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.ok().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.ok().body(e.getMessage());
         }
-        amazonS3Service.deleteImagesByKeys(imageKeys);
-        amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
-        redisService.setAccessTokenBlackList(accessToken);
-        return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
     }
 }

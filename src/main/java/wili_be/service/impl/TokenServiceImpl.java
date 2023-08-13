@@ -18,8 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-    private final Long AccessexpireTimeMs = 1000 * 60 * 60 * 60L; // 3시간
-    private final Long RefreshExpireTimeMs = 2L * 24 * 60 * 60 * 1000L; // 2 days in milliseconds
+//    private final Long AccessexpireTimeMs = 1000 * 60 * 60 * 60L; // 3시간
+    private final Long AccessexpireTimeMs = 1000 * 60L; // 3시간
+
+//    private final Long RefreshExpireTimeMs = 2L * 24 * 60 * 60 * 1000L; // 2 days in milliseconds
+    private final Long RefreshExpireTimeMs = 2L * 60* 1000L; // 2 days in milliseconds
+
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;

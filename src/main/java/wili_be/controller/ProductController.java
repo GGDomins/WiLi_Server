@@ -45,14 +45,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         productService.addProduct(file, productInfoJson, snsId);
         return ResponseEntity.ok("Product 저장 성공.");
@@ -66,14 +58,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         List<byte[]> images = productService.getImagesByMember(snsId);
         List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
@@ -95,14 +79,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         PostResponseDto post = productService.getPostResponseDtoFromId(PostId);
         byte[] image = productService.getImageByMember(post.getImageKey());
 
@@ -134,14 +110,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Post post = productService.getPostFromId(PostId);
         Member member = post.getMember();
@@ -162,14 +130,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Post post = productService.getPostFromId(PostId);
         Member member = post.getMember();
@@ -193,14 +153,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
 
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "member가 존재하지 않습니다."));
@@ -226,14 +178,6 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
             char firstLetter = query.charAt(0);
             if (firstLetter == '@') {
                 MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));

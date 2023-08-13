@@ -112,14 +112,6 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
         String updateMemberJson = memberService.changeMemberUpdateDtoToJson(memberResponseDto);
         return ResponseEntity.ok().body(updateMemberJson);
@@ -133,14 +125,6 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         StatusResult = tokenService.validateAccessToken(accessToken);
-
-        if (StatusResult == StatusCode.UNAUTHORIZED) {
-            throw new ExpiredTokenException();
-        }
-
-        if (StatusResult != StatusCode.OK) {
-            throw new BadRequestException();
-        }
         memberService.removeMember(snsId);
         List<String> imageKeys = productService.getImagesKeysByMember(snsId);
         List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);

@@ -306,6 +306,7 @@ public class ProductServiceImpl implements ProductService {
                 .link(productInfo.getLink())
                 .imageKey(productInfo.getImageKey())
                 .thumbnailImageKey(productInfo.getThumbnailImageKey())
+                .registrationDate(productInfo.getDate())
                 .member(member)
                 .build();
         productRepository.save(post);

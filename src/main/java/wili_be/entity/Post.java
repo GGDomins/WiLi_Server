@@ -29,6 +29,7 @@ public class Post {
     private String link;
     private String imageKey;
     private String thumbnailImageKey;
+    private String registrationDate;
 }
 
 

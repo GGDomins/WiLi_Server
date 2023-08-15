@@ -60,10 +60,15 @@ public class ProductController {
         List<byte[]> images = productService.getImagesByMember(snsId);
         List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
 
+        Map<String, Object> response = new HashMap<>();
+
+        if (images.isEmpty() && postList.isEmpty()) {
+            response.put("message", "제품 없음");
+            return ResponseEntity.ok(response);
+        }
         List<String> image_json = productService.changeBytesToJson(images);
         List<String> post_json = productService.changePostDtoToJson(postList);
-
-        Map<String, Object> response = new HashMap<>();
+        response.put("message", "제품 있음");
         response.put("images", image_json);
         response.put("posts", post_json);
         return ResponseEntity.ok().body(response);

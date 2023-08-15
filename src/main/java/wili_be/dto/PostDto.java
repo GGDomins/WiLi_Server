@@ -26,6 +26,7 @@ public class PostDto {
         private String link;
         private String imageKey;
         private String thumbnailImageKey;
+        private String date;
 
 
         public Post to_Entity() {
@@ -38,6 +39,7 @@ public class PostDto {
                     .link(link)
                     .imageKey(imageKey)
                     .thumbnailImageKey(thumbnailImageKey)
+                    .registrationDate(date)
                     .build();
         }
     }
@@ -74,6 +76,7 @@ public class PostDto {
         private String link;
         private String imageKey;
         private String thumbnailImageKey;
+        private String date;
 
 
         public PostResponseDto(Post post) {
@@ -85,6 +88,7 @@ public class PostDto {
             this.description = post.getDescription();
             this.link = post.getLink();
             this.imageKey = post.getImageKey();
+            this.date = post.getRegistrationDate();
             thumbnailImageKey = post.getThumbnailImageKey();
         }
     }
@@ -100,6 +104,7 @@ public class PostDto {
         private String imageKey;
         private String thumbnailImageKey;
         private String category;
+        private String date;
 
 
         public PostMainPageResponse(Post post) {
@@ -109,6 +114,7 @@ public class PostDto {
             this.category = post.getCategory();
             this.imageKey = post.getImageKey();
             this.thumbnailImageKey = post.getThumbnailImageKey();
+            this.date = post.getRegistrationDate();
         }
     }
     @Data

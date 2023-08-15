@@ -83,9 +83,6 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeyList);
-            if (images.isEmpty()) {
-                return null;
-            }
             return images;
         } catch (Exception e) {
             e.printStackTrace();

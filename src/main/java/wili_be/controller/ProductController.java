@@ -51,27 +51,28 @@ public class ProductController {
     @GetMapping("/users/products")
     ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+        try {
+            if (accessToken == null) {
+                throw new NotLoggedInException();
+            }
+            tokenService.validateAccessToken(accessToken);
+            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+            List<byte[]> images = productService.getImagesByMember(snsId);
+            List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
 
-        if (accessToken == null) {
-            throw new NotLoggedInException();
-        }
-        tokenService.validateAccessToken(accessToken);
-        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-        List<byte[]> images = productService.getImagesByMember(snsId);
-        List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
-
-        Map<String, Object> response = new HashMap<>();
-
-        if (images.isEmpty() && postList.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            List<String> image_json = productService.changeBytesToJson(images);
+            List<String> post_json = productService.changePostDtoToJson(postList);
+            response.put("message", "제품 있음");
+            response.put("images", image_json);
+            response.put("posts", post_json);
+            return ResponseEntity.ok().body(response);
+        } catch (NoSuchElementException e) {
+            Map<String, Object> response = new HashMap<>();
             response.put("message", "제품 없음");
             return ResponseEntity.ok(response);
         }
-        List<String> image_json = productService.changeBytesToJson(images);
-        List<String> post_json = productService.changePostDtoToJson(postList);
-        response.put("message", "제품 있음");
-        response.put("images", image_json);
-        response.put("posts", post_json);
-        return ResponseEntity.ok().body(response);
+
     }
 
     @GetMapping("/products/{PostId}")
@@ -159,18 +160,18 @@ public class ProductController {
 
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "member가 존재하지 않습니다."));
-            RandomFeedDto response = productService.randomFeed(member);
-            List<PostMainPageResponse> posts = response.getPageResponses();
-            List<String> imageKeysList = response.getImageKeyList();
-            List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
+        RandomFeedDto response = productService.randomFeed(member);
+        List<PostMainPageResponse> posts = response.getPageResponses();
+        List<String> imageKeysList = response.getImageKeyList();
+        List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
 
-            List<String> image_json = productService.changeBytesToJson(imageList);
-            List<String> product_json = productService.changePostDtoToJson(posts);
+        List<String> image_json = productService.changeBytesToJson(imageList);
+        List<String> product_json = productService.changePostDtoToJson(posts);
 
-            Map<String, Object> Map_response = new HashMap<>();
-            Map_response.put("images", image_json);
-            Map_response.put("posts", product_json);
-            return ResponseEntity.ok().body(Map_response);
+        Map<String, Object> Map_response = new HashMap<>();
+        Map_response.put("images", image_json);
+        Map_response.put("posts", product_json);
+        return ResponseEntity.ok().body(Map_response);
     }
 
     @GetMapping("/search")
@@ -181,24 +182,24 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
-            char firstLetter = query.charAt(0);
-            if (firstLetter == '@') {
-                MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));
-                String memberResponseJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
-                return ResponseEntity.ok().body(memberResponseJson);
-            } else {
-                SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
-                List<PostMainPageResponse> productList = response.getProduct().get("product");
-                List<String> imageKeys = response.getImageKey().get("image");
-                List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
+        char firstLetter = query.charAt(0);
+        if (firstLetter == '@') {
+            MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));
+            String memberResponseJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
+            return ResponseEntity.ok().body(memberResponseJson);
+        } else {
+            SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
+            List<PostMainPageResponse> productList = response.getProduct().get("product");
+            List<String> imageKeys = response.getImageKey().get("image");
+            List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
 
-                List<String> product_json = productService.changePostDtoToJson(productList);
-                List<String> image_json = productService.changeBytesToJson(images);
+            List<String> product_json = productService.changePostDtoToJson(productList);
+            List<String> image_json = productService.changeBytesToJson(images);
 
-                Map<String, Object> Map_response = new HashMap<>();
-                Map_response.put("images", image_json);
-                Map_response.put("posts", product_json);
-                return ResponseEntity.ok().body(Map_response);
-            }
+            Map<String, Object> Map_response = new HashMap<>();
+            Map_response.put("images", image_json);
+            Map_response.put("posts", product_json);
+            return ResponseEntity.ok().body(Map_response);
+        }
     }
 }

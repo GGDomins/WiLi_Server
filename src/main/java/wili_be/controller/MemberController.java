@@ -103,7 +103,7 @@ public class MemberController {
         }
         tokenService.validateAccessToken(accessToken);
         MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
-        String updateMemberJson =jsonService.changeMemberResponseDtoToJson(memberResponseDto);
+        String updateMemberJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
         return ResponseEntity.ok().body(updateMemberJson);
     }
 
@@ -115,18 +115,14 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
-        try {
-            memberService.removeMember(snsId);
-            List<String> imageKeys = productService.getImagesKeysByMember(snsId);
-            List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
-            amazonS3Service.deleteImagesByKeys(imageKeys);
-            amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
-            redisService.setAccessTokenBlackList(accessToken);
-            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.ok().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.ok().body(e.getMessage());
-        }
+
+        memberService.removeMember(snsId);
+        List<String> imageKeys = productService.getImagesKeysByMember(snsId);
+        List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
+        amazonS3Service.deleteImagesByKeys(imageKeys);
+        amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
+        redisService.setAccessTokenBlackList(accessToken);
+        return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
+
     }
 }

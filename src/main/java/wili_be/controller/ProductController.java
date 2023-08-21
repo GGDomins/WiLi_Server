@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -179,33 +180,44 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
-        char firstLetter = query.charAt(0);
-        if (firstLetter == '@') {
-            Member member = memberService.findMemberByMemberName(query.substring(1));
+        try {
+            char firstLetter = query.charAt(0);
+            if (firstLetter == '@') {
+                Member member = memberService.findMemberByMemberName(query.substring(1));
+                List<PostMainPageResponse> postList = productService.getPostByMember(member.getSnsId());
+                List<byte[]> images = productService.getImagesByMember(member.getSnsId());
 
-            List<PostMainPageResponse> postList = productService.getPostByMember(member.getSnsId());
-            List<byte[]> images = productService.getImagesByMember(member.getSnsId());
+                Map<String, Object> response = new HashMap<>();
+                List<String> image_json = jsonService.changeByteListToJson(images);
+                List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
 
+                response.put("message", "제품 있음");
+                response.put("images", image_json);
+                response.put("posts", post_json);
+                return ResponseEntity.ok().body(response);
+            } else {
+                SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
+                List<PostMainPageResponse> productList = response.getProduct().get("product");
+                List<String> imageKeys = response.getImageKey().get("image");
+                List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
+
+                List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(productList);
+                List<String> image_json = jsonService.changeByteListToJson(images);
+
+                Map<String, Object> Map_response = new HashMap<>();
+                Map_response.put("message", "제품 있음");
+                Map_response.put("images", image_json);
+                Map_response.put("posts", product_json);
+                return ResponseEntity.ok().body(Map_response);
+            }
+        } catch (NoSuchElementException e) {
             Map<String, Object> response = new HashMap<>();
-            List<String> image_json = jsonService.changeByteListToJson(images);
-            List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
-
-            response.put("images", image_json);
-            response.put("posts", post_json);
-            return ResponseEntity.ok().body(response);
-        } else {
-            SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
-            List<PostMainPageResponse> productList = response.getProduct().get("product");
-            List<String> imageKeys = response.getImageKey().get("image");
-            List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
-
-            List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(productList);
-            List<String> image_json = jsonService.changeByteListToJson(images);
-
-            Map<String, Object> Map_response = new HashMap<>();
-            Map_response.put("images", image_json);
-            Map_response.put("posts", product_json);
-            return ResponseEntity.ok().body(Map_response);
+            response.put("message", "제품 없음");
+            return ResponseEntity.ok(response);
+        } catch (UsernameNotFoundException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "유저 없음");
+            return ResponseEntity.ok(response);
         }
     }
 }

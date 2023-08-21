@@ -3,6 +3,7 @@ package wili_be.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +15,7 @@ import wili_be.dto.MemberDto.Member_info_Dto;
 import wili_be.dto.PostDto;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
+import wili_be.exception.CustomExceptions;
 import wili_be.repository.MemberRepository;
 import wili_be.repository.ProductRepository;
 import wili_be.service.MemberService;
@@ -23,6 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static wili_be.dto.MemberDto.*;
+import static wili_be.exception.CustomExceptions.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,20 +62,19 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     public Member findMemberByMemberName(String username) {
         Member member = memberRepository.findMemberByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
         return member;
-
     }
 
     @Transactional
     @Override
     public void removeMember(String snsId) {
-        Member member = findMemberById(snsId).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
+        Member member = findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "user을 찾을 수 없습니다."));
         memberRepository.delete(member);
     }
 
     @Transactional
     @Override
     public MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto) {
-        Member member = findMemberById(snsId).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
+        Member member = findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "user을 찾을 수 없습니다."));
         // 요청으로 받은 필드들로 업데이트
         if (memberRequestDto.getName() != null) {
             member.setName(memberRequestDto.getName());

@@ -20,7 +20,6 @@ public class MemberDto {
         private LoginProvider loginProvider;
         private String snsId;
 
-
         public Member to_Entity() {
             return Member.builder()
                     .name(name)
@@ -45,7 +44,6 @@ public class MemberDto {
         private String id;
         private String nickname;
         private String email;
-
     }
 
     @Getter

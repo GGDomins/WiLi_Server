@@ -24,6 +24,7 @@ public interface ProductRepository extends JpaRepository<Post, Long> {
 
     List<Post> findPostsByBrandName(String brandName);
 
+
     @Query("select p from Post p where p.productName like :searchName")
     List<Post> findPostsByProductName(@Param("searchName") String searchName);
 

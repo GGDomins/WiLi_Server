@@ -35,7 +35,9 @@ public class ProductController {
     private final JsonService jsonService;
 
     @PostMapping("/products/add")
-    public ResponseEntity<String> addProduct(@RequestParam("file") MultipartFile file, @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<String> addProduct(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
 
         if (accessToken == null) {
@@ -155,21 +157,28 @@ public class ProductController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
+        try {
 
-        String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-        Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "member가 존재하지 않습니다."));
-        RandomFeedDto response = productService.randomFeed(member);
-        List<PostMainPageResponse> posts = response.getPageResponses();
-        List<String> imageKeysList = response.getImageKeyList();
-        List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
+            String snsId = jwtTokenProvider.getUsersnsId(accessToken);
+            Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "member가 존재하지 않습니다."));
+            RandomFeedDto response = productService.randomFeed(member);
+            List<PostMainPageResponse> posts = response.getPageResponses();
+            List<String> imageKeysList = response.getImageKeyList();
+            List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
 
-        List<String> image_json = jsonService.changeByteListToJson(imageList);
-        List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(posts);
+            List<String> image_json = jsonService.changeByteListToJson(imageList);
+            List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(posts);
 
-        Map<String, Object> Map_response = new HashMap<>();
-        Map_response.put("images", image_json);
-        Map_response.put("posts", product_json);
-        return ResponseEntity.ok().body(Map_response);
+            Map<String, Object> Map_response = new HashMap<>();
+            Map_response.put("message", "제품 있음");
+            Map_response.put("images", image_json);
+            Map_response.put("posts", product_json);
+            return ResponseEntity.ok().body(Map_response);
+        } catch (NoSuchElementException e) {
+            Map<String, Object> Map_response = new HashMap<>();
+            Map_response.put("message", "제품 없음");
+            return ResponseEntity.ok(Map_response);
+        }
     }
 
     @GetMapping("/search")

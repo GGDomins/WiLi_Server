@@ -19,6 +19,7 @@ import wili_be.entity.LoginProvider;
 import wili_be.entity.Member;
 import wili_be.security.oauth.KakaoLoginBO;
 import wili_be.security.oauth.NaverLoginBO;
+import wili_be.service.JsonService;
 import wili_be.service.MemberService;
 import wili_be.service.TokenService;
 import wili_be.dto.MemberDto.SocialMemberInfoDto;
@@ -42,6 +43,7 @@ public class OAuthController {
     private final TokenService tokenService;
     private final NaverLoginBO naverLoginBO;
     private final KakaoLoginBO kakaoLoginBO;
+    private final JsonService jsonService;
 
     /**
      * NAVER
@@ -54,7 +56,7 @@ public class OAuthController {
             SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
             Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
 
-            String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
+            String jsonMemberDto = jsonService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -95,7 +97,7 @@ public class OAuthController {
             SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
             Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
 
-            String jsonMemberDto = memberService.changeMemberInfoDtoToJson(memberDto);
+            String jsonMemberDto = jsonService.changeMemberInfoDtoToJson(memberDto);
             Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
             if (memberOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

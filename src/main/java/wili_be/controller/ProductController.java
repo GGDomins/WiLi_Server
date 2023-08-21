@@ -10,10 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
-import wili_be.service.AmazonS3Service;
-import wili_be.service.MemberService;
-import wili_be.service.ProductService;
-import wili_be.service.TokenService;
+import wili_be.service.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -34,6 +31,7 @@ public class ProductController {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
     private final MemberService memberService;
+    private final JsonService jsonService;
 
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(@RequestParam("file") MultipartFile file, @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
@@ -61,8 +59,8 @@ public class ProductController {
             List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
 
             Map<String, Object> response = new HashMap<>();
-            List<String> image_json = productService.changeBytesToJson(images);
-            List<String> post_json = productService.changePostDtoToJson(postList);
+            List<String> image_json = jsonService.changeByteListToJson(images);
+            List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
             response.put("message", "제품 있음");
             response.put("images", image_json);
             response.put("posts", post_json);
@@ -86,8 +84,8 @@ public class ProductController {
         PostResponseDto post = productService.getPostResponseDtoFromId(PostId);
         byte[] image = productService.getImageByMember(post.getImageKey());
 
-        String JsonImage = productService.changeByteToJson(image);
-        String JsonPost = productService.changePostToJson(post);
+        String JsonImage = jsonService.changeByteToJson(image);
+        String JsonPost = jsonService.changePostResponseDtoToJson(post);
         Map<String, Object> response = new HashMap<>();
         response.put("image", JsonImage);
         response.put("post", JsonPost);
@@ -119,7 +117,7 @@ public class ProductController {
         Member member = post.getMember();
         if (member.getSnsId().equals(snsId)) {
             PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
-            String jsonPost = productService.changePostToJson(updatePost);
+            String jsonPost = jsonService.changePostResponseDtoToJson(updatePost);
             return ResponseEntity.ok(jsonPost);
         }
         throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
@@ -165,8 +163,8 @@ public class ProductController {
         List<String> imageKeysList = response.getImageKeyList();
         List<byte[]> imageList = amazonS3Service.getImageBytesByKeys(imageKeysList);
 
-        List<String> image_json = productService.changeBytesToJson(imageList);
-        List<String> product_json = productService.changePostDtoToJson(posts);
+        List<String> image_json = jsonService.changeByteListToJson(imageList);
+        List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(posts);
 
         Map<String, Object> Map_response = new HashMap<>();
         Map_response.put("images", image_json);
@@ -185,7 +183,7 @@ public class ProductController {
         char firstLetter = query.charAt(0);
         if (firstLetter == '@') {
             MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));
-            String memberResponseJson = memberService.changeMemberResponseDtoToJson(memberResponseDto);
+            String memberResponseJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
             return ResponseEntity.ok().body(memberResponseJson);
         } else {
             SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
@@ -193,8 +191,8 @@ public class ProductController {
             List<String> imageKeys = response.getImageKey().get("image");
             List<byte[]> images = amazonS3Service.getImageBytesByKeys(imageKeys);
 
-            List<String> product_json = productService.changePostDtoToJson(productList);
-            List<String> image_json = productService.changeBytesToJson(images);
+            List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(productList);
+            List<String> image_json = jsonService.changeByteListToJson(images);
 
             Map<String, Object> Map_response = new HashMap<>();
             Map_response.put("images", image_json);

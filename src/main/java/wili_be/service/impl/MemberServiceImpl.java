@@ -105,42 +105,6 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Override
-    public String changeMemberInfoDtoToJson(Member_info_Dto memberInfoDto) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String memberDtoJson = objectMapper.writeValueAsString(memberInfoDto);
-            return memberDtoJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String changeMemberUpdateDtoToJson(MemberResponseDto memberUpdateResponseDto) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String updateMemberJson = objectMapper.writeValueAsString(memberUpdateResponseDto);
-            return updateMemberJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String memberResponseDtoJson = objectMapper.writeValueAsString(memberResponseDto);
-            return memberResponseDtoJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
     public ResponseCookie createHttpOnlyCookie(String refreshToken) {
         //HTTPONLY 쿠키에 RefreshToken 생성후 전달
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)

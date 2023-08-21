@@ -214,52 +214,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String changePostToJson(PostResponseDto post) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String postJson = objectMapper.writeValueAsString(post);
-            return postJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String changeByteToJson(byte[] bytes) {
-        String encodedImage = java.util.Base64.getEncoder().encodeToString(bytes);
-        return encodedImage;
-    }
-
-    @Override
-    public List<String> changeBytesToJson(List<byte[]> bytes) {
-        List<String> jsonList = new ArrayList<>();
-        for (byte[] imageBytes : bytes) {
-            // 바이트 배열을 Base64로 인코딩하여 문자열로 변환합니다.
-            String encodedImage = java.util.Base64.getEncoder().encodeToString(imageBytes);
-            jsonList.add(encodedImage);
-        }
-        return jsonList;
-    }
-
-    @Override
-    public List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList) {
-        List<String> postJsonList = postResponseDtoList.stream()
-                .map(postResponseDto -> {
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        return objectMapper.writeValueAsString(postResponseDto);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(json -> json != null)
-                .collect(Collectors.toList());
-        return postJsonList;
-    }
-
-    @Override
     public void deletePostByPostId(Long PostId) {
         try {
             Post post = getPostFromId(PostId);

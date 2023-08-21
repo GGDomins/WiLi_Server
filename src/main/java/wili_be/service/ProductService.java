@@ -35,14 +35,6 @@ public interface ProductService {
 
     PostResponseDto updatePost(Long postId, PostUpdateResponseDto postUpdateDto);
 
-    String changePostToJson(PostResponseDto post);
-
-    String changeByteToJson(byte[] bytes);
-
-    List<String> changeBytesToJson(List<byte[]> bytes);
-
-    List<String> changePostDtoToJson(List<PostMainPageResponse> postResponseDtoList);
-
     RandomFeedDto randomFeed(Member member);
 
     void deletePostByPostId(Long PostId);

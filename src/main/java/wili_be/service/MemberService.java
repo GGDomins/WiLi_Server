@@ -22,5 +22,5 @@ public interface MemberService{
     void removeMember(String Id);
     MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto);
     boolean validateExistingMember(String username);
-    MemberResponseDto findMemberByUserName(String username);
+    Member findMemberByMemberName(String username);
     }

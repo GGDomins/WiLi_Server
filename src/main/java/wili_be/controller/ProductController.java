@@ -70,7 +70,6 @@ public class ProductController {
             response.put("message", "제품 없음");
             return ResponseEntity.ok(response);
         }
-
     }
 
     @GetMapping("/products/{PostId}")
@@ -182,9 +181,18 @@ public class ProductController {
         tokenService.validateAccessToken(accessToken);
         char firstLetter = query.charAt(0);
         if (firstLetter == '@') {
-            MemberResponseDto memberResponseDto = memberService.findMemberByUserName(query.substring(1));
-            String memberResponseJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
-            return ResponseEntity.ok().body(memberResponseJson);
+            Member member = memberService.findMemberByMemberName(query.substring(1));
+
+            List<PostMainPageResponse> postList = productService.getPostByMember(member.getSnsId());
+            List<byte[]> images = productService.getImagesByMember(member.getSnsId());
+
+            Map<String, Object> response = new HashMap<>();
+            List<String> image_json = jsonService.changeByteListToJson(images);
+            List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
+
+            response.put("images", image_json);
+            response.put("posts", post_json);
+            return ResponseEntity.ok().body(response);
         } else {
             SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
             List<PostMainPageResponse> productList = response.getProduct().get("product");

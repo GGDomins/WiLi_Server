@@ -56,10 +56,9 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Override
-    public MemberResponseDto findMemberByUserName(String username) {
+    public Member findMemberByMemberName(String username) {
         Member member = memberRepository.findMemberByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user을 찾을 수 없습니다."));
-        MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        return memberResponseDto;
+        return member;
 
     }
 

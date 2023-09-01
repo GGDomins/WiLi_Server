@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import static wili_be.exception.CustomExceptions.*;
 
 @ControllerAdvice
@@ -29,8 +33,18 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> createUnauthorizedResponse(NotLoggedInException e) {
         return ErrorResponseEntity.createUnauthorizedResponse("접근 토큰이 없습니다.");
     }
+
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("파일 크기가 너무 큽니다. 최대 허용 크기는 3MB입니다.");
+    }
+
+    @ExceptionHandler(NoProductException.class)
+    public ResponseEntity<Map<String, Object>> handleNoproductException(NoProductException e) {
+        return ErrorResponseEntity.handleNoProductException();
+    }
+    @ExceptionHandler(NoUserException.class)
+    public ResponseEntity<Map<String, Object>> handleNoUserException(NoProductException e) {
+        return ErrorResponseEntity.handleNoUserException();
     }
 }

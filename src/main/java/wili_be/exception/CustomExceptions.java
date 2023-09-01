@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class CustomExceptions{
     @AllArgsConstructor
@@ -28,4 +31,14 @@ public class CustomExceptions{
         private String info;
     }
 
+    @Getter
+    public static class NoProductException extends RuntimeException {
+        private HttpStatus httpStatus;
+        private Map<Object, Object> hashMap;
+    }
+    @Getter
+    public static class NoUserException extends RuntimeException {
+        private HttpStatus httpStatus;
+        private Map<Object, Object> hashMap;
+    }
 }

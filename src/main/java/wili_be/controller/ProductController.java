@@ -51,30 +51,38 @@ public class ProductController {
     }
 
     @GetMapping("/users/products")
-    ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
+    public ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
+        // 1. 토큰 검증과 추출
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
+        if (accessToken == null) {
+            throw new NotLoggedInException();
+        }
+        tokenService.validateAccessToken(accessToken);
+
         try {
-            if (accessToken == null) {
-                throw new NotLoggedInException();
-            }
-            tokenService.validateAccessToken(accessToken);
+            // 2. SNS ID를 추출하고 사용자 관련 데이터 가져오기
             String snsId = jwtTokenProvider.getUsersnsId(accessToken);
             List<byte[]> images = productService.getImagesByMember(snsId);
             List<PostMainPageResponse> postList = productService.getPostByMember(snsId);
 
+            // 3. 응답 생성
             Map<String, Object> response = new HashMap<>();
-            List<String> image_json = jsonService.changeByteListToJson(images);
-            List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
+            List<String> imageJsonList = jsonService.changeByteListToJson(images);
+            List<String> postJsonList = jsonService.changePostMainPageResponseDtoListToJson(postList);
+
             response.put("message", "제품 있음");
-            response.put("images", image_json);
-            response.put("posts", post_json);
+            response.put("images", imageJsonList);
+            response.put("posts", postJsonList);
+
             return ResponseEntity.ok().body(response);
         } catch (NoSuchElementException e) {
+            // 4. 예외 처리 및 응답 생성
             Map<String, Object> response = new HashMap<>();
             response.put("message", "제품 없음");
             return ResponseEntity.ok(response);
         }
     }
+
 
     @GetMapping("/products/{PostId}")
     ResponseEntity<?> getPostsById(HttpServletRequest httpRequest, @PathVariable Long PostId) throws IOException {
@@ -176,9 +184,7 @@ public class ProductController {
             Map_response.put("posts", product_json);
             return ResponseEntity.ok().body(Map_response);
         } catch (NoSuchElementException e) {
-            Map<String, Object> Map_response = new HashMap<>();
-            Map_response.put("message", "제품 없음");
-            return ResponseEntity.ok(Map_response);
+            throw new NoProductException();
         }
     }
 
@@ -221,13 +227,9 @@ public class ProductController {
                 return ResponseEntity.ok().body(Map_response);
             }
         } catch (NoSuchElementException e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "제품 없음");
-            return ResponseEntity.ok(response);
+            throw new NoProductException();
         } catch (UsernameNotFoundException e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "유저 없음");
-            return ResponseEntity.ok(response);
+            throw new NoUserException();
         }
     }
 }

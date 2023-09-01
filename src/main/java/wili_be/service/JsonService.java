@@ -16,8 +16,4 @@ public interface JsonService {
     List<String> changeByteListToJson(List<byte[]> bytes);
 
     List<String> changePostMainPageResponseDtoListToJson(List<PostMainPageResponse> pageResponses);
-
-    String changeMemberInfoDtoToJson(Member_info_Dto memberInfoDto);
-
-    String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto);
 }

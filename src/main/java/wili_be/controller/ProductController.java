@@ -37,7 +37,8 @@ public class ProductController {
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("productInfo") String productInfoJson, HttpServletRequest httpServletRequest) {
+            @RequestParam("productInfo") String productInfoJson,
+            HttpServletRequest httpServletRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
 
         if (accessToken == null) {

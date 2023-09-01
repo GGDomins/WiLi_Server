@@ -62,28 +62,4 @@ public class JsonServiceImpl implements JsonService {
                 .collect(Collectors.toList());
         return postJsonList;
     }
-
-    @Override
-    public String changeMemberInfoDtoToJson(Member_info_Dto memberInfoDto) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String memberDtoJson = objectMapper.writeValueAsString(memberInfoDto);
-            return memberDtoJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String changeMemberResponseDtoToJson(MemberResponseDto memberResponseDto) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String updateMemberJson = objectMapper.writeValueAsString(memberResponseDto);
-            return updateMemberJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

@@ -27,7 +27,6 @@ public class MemberController {
     private final TokenService tokenService;
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
-    private final JsonService jsonService;
 
     @PostMapping("/users/auth")
     ResponseEntity<?> validateAccessToken(HttpServletRequest httpRequest) {
@@ -75,7 +74,6 @@ public class MemberController {
         tokenService.validateAccessToken(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-//        String memberResponseDtoJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
         return ResponseEntity.ok().body(memberResponseDto);
     }
 
@@ -95,7 +93,7 @@ public class MemberController {
     }
 
     @PatchMapping("/users/{snsId}")
-    public ResponseEntity<String> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
+    public ResponseEntity<MemberResponseDto> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -103,8 +101,7 @@ public class MemberController {
         }
         tokenService.validateAccessToken(accessToken);
         MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
-        String updateMemberJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
-        return ResponseEntity.ok().body(updateMemberJson);
+        return ResponseEntity.ok().body(memberResponseDto);
     }
 
     @DeleteMapping("/users/{snsId}")

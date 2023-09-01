@@ -66,7 +66,7 @@ public class MemberController {
     }
 
     @GetMapping("/users/{snsId}")
-    ResponseEntity<String> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
+    ResponseEntity<MemberResponseDto> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -75,8 +75,8 @@ public class MemberController {
         tokenService.validateAccessToken(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        String memberResponseDtoJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
-        return ResponseEntity.ok().body(memberResponseDtoJson);
+//        String memberResponseDtoJson = jsonService.changeMemberResponseDtoToJson(memberResponseDto);
+        return ResponseEntity.ok().body(memberResponseDto);
     }
 
     @GetMapping("/users/check/{username}")

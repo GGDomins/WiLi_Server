@@ -28,6 +28,7 @@ public class MemberController {
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
 
+
     @PostMapping("/users/auth")
     ResponseEntity<?> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -112,14 +113,18 @@ public class MemberController {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
+        try {
+            List<String> imageKeys = productService.getImagesKeysByMember(snsId);
+            List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
+            amazonS3Service.deleteImagesByKeys(imageKeys);
+            amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
+            redisService.setAccessTokenBlackList(accessToken);
+            memberService.removeMember(snsId);
+            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
+        } catch (NoSuchElementException e) {
+            throw new CustomException(HttpStatus.OK, "image가 존재하지 않습니다.");
+        }
 
-        List<String> imageKeys = productService.getImagesKeysByMember(snsId);
-        List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
-        amazonS3Service.deleteImagesByKeys(imageKeys);
-        amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
-        redisService.setAccessTokenBlackList(accessToken);
-        memberService.removeMember(snsId);
-        return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
 
     }
 }

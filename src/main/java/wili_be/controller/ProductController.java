@@ -77,9 +77,7 @@ public class ProductController {
             return ResponseEntity.ok().body(response);
         } catch (NoSuchElementException e) {
             // 4. 예외 처리 및 응답 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "제품 없음");
-            return ResponseEntity.ok(response);
+            throw new NoProductException();
         }
     }
 

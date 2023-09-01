@@ -44,7 +44,7 @@ public class CustomExceptionHandler {
         return ErrorResponseEntity.handleNoProductException();
     }
     @ExceptionHandler(NoUserException.class)
-    public ResponseEntity<Map<String, Object>> handleNoUserException(NoProductException e) {
+    public ResponseEntity<Map<String, Object>> handleNoUserException(NoUserException e) {
         return ErrorResponseEntity.handleNoUserException();
     }
 }

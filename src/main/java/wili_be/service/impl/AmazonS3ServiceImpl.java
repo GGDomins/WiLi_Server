@@ -49,7 +49,6 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         try {
             String key = UUID.randomUUID().toString() + "/" + filename;
             ObjectMetadata objectMetadata = new ObjectMetadata();
-            // 이미지 파일의 content type은 필요에 따라 설정해 주세요.
             objectMetadata.setContentType("image/jpeg");
             objectMetadata.setContentLength(imageBytes.length);
             getAmazonS3().putObject(bucketName, key, new ByteArrayInputStream(imageBytes), objectMetadata);
@@ -90,7 +89,6 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-
             return outputStream.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException("Amazon S3에서 이미지를 읽어오는데 실패했습니다.", e);

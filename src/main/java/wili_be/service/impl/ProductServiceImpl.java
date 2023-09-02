@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
+import wili_be.exception.CustomExceptions;
 import wili_be.repository.ProductRepository;
 import wili_be.service.AmazonS3Service;
 import wili_be.service.MemberService;
@@ -22,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static wili_be.dto.PostDto.*;
+import static wili_be.exception.CustomExceptions.*;
 
 
 @Service
@@ -42,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
             byte[] thumbnailImage = createThumbnail(file.getBytes(), 480, 480);
 
             String key = amazonS3Service.putObject(file.getBytes(), "originalImage" + file.getOriginalFilename());
-            String thumbnailImagekey = amazonS3Service.putObject(thumbnailImage,"thumbnailImage" + file.getOriginalFilename());
+            String thumbnailImagekey = amazonS3Service.putObject(thumbnailImage, "thumbnailImage" + file.getOriginalFilename());
 
             productInfo.setImageKey(key);
             productInfo.setThumbnailImageKey(thumbnailImagekey);
@@ -51,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException(e);
         }
     }
+
     // 썸네일 생성 메서드
     private byte[] createThumbnail(byte[] imageBytes, int width, int height) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -68,6 +72,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return ThumbnailimageList;
     }
+
     @Override
     public List<String> getImagesKeysByMember(String snsId) {
         List<String> imageList = productRepository.findImageKeysBysnsId(snsId);
@@ -98,7 +103,6 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("멤버로부터 이미지를 가져오는데 실패했습니다.: " + imageKey, e);
-
         }
     }
 
@@ -117,15 +121,14 @@ public class ProductServiceImpl implements ProductService {
         Post post = productRepository.findPostById(id);
         PostResponseDto postResponseDto = new PostResponseDto(post);
         if (postResponseDto == null) {
-            log.info("post의 값이 null입니다.");
-            return null;
+            throw new CustomException(HttpStatus.BAD_REQUEST, "postResponseDto의 값이 null입니다.");
         }
         return postResponseDto;
     }
 
     @Override
     public SearchPageResponse getPostResponseDtoFromProductName(String productName) {
-        List<Post> postList = productRepository.findPostsByProductName("%"+productName+"%");
+        List<Post> postList = productRepository.findPostsByProductName("%" + productName + "%");
         List<String> imageKeyList = new ArrayList<>();
 
         for (Post post : postList) {
@@ -150,6 +153,7 @@ public class ProductServiceImpl implements ProductService {
             return response;
         }
     }
+
     @Override
     public List<PostMainPageResponse> getPostResponseDtoFromBrandName(String brandName) {
         List<Post> postList = productRepository.findPostsByBrandName(brandName);
@@ -186,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (post == null) {
             // 요청한 postId에 해당하는 Post가 없으면 예외 처리
-            throw new NoSuchElementException("해당하는 게시물을 찾을 수 없습니다.");
+            throw new CustomException(HttpStatus.NOT_FOUND, "해당하는 게시물을 찾을 수 없습니다.");
         }
         // 요청으로 받은 필드들로 업데이트
         if (postUpdateDto.getBrandName() != null) {
@@ -215,14 +219,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deletePostByPostId(Long PostId) {
-        try {
-            Post post = getPostFromId(PostId);
-            productRepository.delete(post);
-        } catch (NullPointerException e) {
-            throw new RuntimeException(e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        Post post = getPostFromId(PostId);
+        productRepository.delete(post);
     }
 
     public RandomFeedDto randomFeed(Member member) {
@@ -244,7 +242,6 @@ public class ProductServiceImpl implements ProductService {
             return randomFeedDto;
         }
     }
-
 
 
     private void savePost(PostInfoDto productInfo, String snsId) {

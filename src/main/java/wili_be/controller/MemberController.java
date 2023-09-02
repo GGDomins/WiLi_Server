@@ -30,7 +30,7 @@ public class MemberController {
 
 
     @PostMapping("/users/auth")
-    ResponseEntity<?> validateAccessToken(HttpServletRequest httpRequest) {
+    ResponseEntity<Map<String,Object>> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
             throw new NotLoggedInException();
@@ -55,7 +55,7 @@ public class MemberController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .header("accessToken", new_accessToken)
-                .body("create accessToken from refreshToken finish");
+                .body("accessToken 생성 완료");
     }
 
     @PostMapping("/users/logout")

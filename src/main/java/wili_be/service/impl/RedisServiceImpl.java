@@ -45,14 +45,10 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setAccessTokenBlackList(String accessTokenBlackList) {
-        log.info(accessTokenBlackList);
-        log.info("블랙리스트 토큰입니다.");
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         setValues(accessTokenBlackList, "BlackList");
         redisTemplate.expire(accessTokenBlackList, Duration.ofHours(3)); // 3시간 후에 만료
         String blackList = values.get(accessTokenBlackList);
-        log.info(blackList);
-        log.info("블랙리스트 완료");
     }
 
     @Override

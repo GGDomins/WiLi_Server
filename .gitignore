@@ -3,7 +3,10 @@ HELP.md
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+Procfile
+system.properties
+gradlew.bat
+settings.gradle
 ### STS ###
 .apt_generated
 .classpath

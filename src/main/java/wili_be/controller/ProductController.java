@@ -17,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-
-//import static wili_be.dto.ImageDto.*;
-import static wili_be.dto.MemberDto.*;
 import static wili_be.dto.PostDto.*;
 import static wili_be.exception.CustomExceptions.*;
 
@@ -34,6 +31,7 @@ public class ProductController {
     private final MemberService memberService;
     private final JsonService jsonService;
 
+    //상품 등록
     @PostMapping("/products/add")
     public ResponseEntity<String> addProduct(
             @RequestParam("file") MultipartFile file,
@@ -50,6 +48,7 @@ public class ProductController {
         return ResponseEntity.ok("Product 저장 성공.");
     }
 
+    // user의 상품조회
     @GetMapping("/users/products")
     public ResponseEntity<?> getPostsByUser(HttpServletRequest httpRequest) throws IOException {
         // 1. 토큰 검증과 추출
@@ -81,7 +80,7 @@ public class ProductController {
         }
     }
 
-
+    //상품 조회
     @GetMapping("/products/{PostId}")
     ResponseEntity<?> getPostsById(HttpServletRequest httpRequest, @PathVariable Long PostId) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -111,6 +110,7 @@ public class ProductController {
         }
     }
 
+    //상품 수정
     @Transactional
     @PatchMapping("/products/{PostId}")
         // http method가 다르면 uri는 겹쳐도 된다.
@@ -132,6 +132,7 @@ public class ProductController {
         throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
     }
 
+    //상품 삭제
     @Transactional
     @DeleteMapping("/products/{PostId}")
     ResponseEntity<String> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {
@@ -156,6 +157,7 @@ public class ProductController {
         }
     }
 
+    //랜덤 피드
     @GetMapping("/random-feed")
     ResponseEntity<?> randomFeed(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -186,6 +188,7 @@ public class ProductController {
         }
     }
 
+    //검색 api
     @GetMapping("/search")
     public ResponseEntity<?> searchPostOrMember(HttpServletRequest httpServletRequest, @RequestParam String query) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);

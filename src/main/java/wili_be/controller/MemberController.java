@@ -28,7 +28,7 @@ public class MemberController {
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
 
-
+    //accessToken을 이용해서 로그인 여부를 판단함.
     @PostMapping("/users/auth")
     ResponseEntity<Map<String,Object>> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -42,6 +42,7 @@ public class MemberController {
         return ResponseEntity.ok().body(response);
     }
 
+    //refreshToken을 이용해서 accessToken 재발급
     @PostMapping("/users/refresh-token")
     ResponseEntity<String> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         if (refreshToken.isEmpty()) {
@@ -58,6 +59,7 @@ public class MemberController {
                 .body("accessToken 생성 완료");
     }
 
+    //accessToken을 블랙리스트 처리한 후, 로그아웃
     @PostMapping("/users/logout")
     ResponseEntity<String> logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
@@ -65,6 +67,7 @@ public class MemberController {
         return ResponseEntity.ok("set" + accessToken + "blackList");
     }
 
+    //user 정보 조회
     @GetMapping("/users/{snsId}")
     ResponseEntity<MemberResponseDto> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -78,6 +81,7 @@ public class MemberController {
         return ResponseEntity.ok().body(memberResponseDto);
     }
 
+    //추가 회원가입을 할 때 닉네임 중복 여부 검사
     @GetMapping("/users/check/{username}")
     public ResponseEntity<Map<String, String>> validateUserName(@PathVariable String username) {
         if (memberService.validateExistingMember(username)) {
@@ -93,6 +97,7 @@ public class MemberController {
         }
     }
 
+    //user 정보 수정
     @PatchMapping("/users/{snsId}")
     public ResponseEntity<MemberResponseDto> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
@@ -105,6 +110,7 @@ public class MemberController {
         return ResponseEntity.ok().body(memberResponseDto);
     }
 
+    //user 탈퇴
     @DeleteMapping("/users/{snsId}")
     public ResponseEntity<String> removeMember(HttpServletRequest httpServletRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
@@ -124,7 +130,5 @@ public class MemberController {
         } catch (NoSuchElementException e) {
             throw new CustomException(HttpStatus.OK, "image가 존재하지 않습니다.");
         }
-
-
     }
 }

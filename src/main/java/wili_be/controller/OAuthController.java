@@ -41,9 +41,7 @@ public class OAuthController {
     private final NaverLoginBO naverLoginBO;
     private final KakaoLoginBO kakaoLoginBO;
 
-    /**
-     * NAVER
-     */
+    //naver Oauth 로그인
     @RequestMapping(value = "/naver/callback", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<Member_info_Dto> callback(@RequestParam String code, @RequestParam String state) throws IOException {
         OAuth2AccessToken oauthToken;
@@ -69,9 +67,7 @@ public class OAuthController {
                 .body(memberDto);
     }
 
-    /**
-     * KAKAO
-     */
+    //kakao Oauth 로그인
     @RequestMapping(value = "/kakao/callback", method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity<Member_info_Dto> kakaoLogin(@RequestParam("code") String code) throws IOException {
         OAuth2AccessToken oauthToken;
@@ -97,6 +93,7 @@ public class OAuthController {
                 .body(memberDto);
     }
 
+    //user 추가 회원가입
     @PostMapping("/users/signup")
     ResponseEntity<String> additionalSignUp(@RequestBody AdditionalSignupInfo additionalSignupInfo) {
         memberService.saveUser(additionalSignupInfo);

@@ -63,11 +63,6 @@ public class OAuthController {
         String accessToken = tokenDto.getAccessToken();
         String refreshToken = tokenDto.getRefreshToken();
 
-        log.info("apiResponse값 확인");
-        log.info(apiResponse.toString());
-        log.info(apiResponse.getStatus().toString());
-        log.info(apiResponse.getMessage().toString());
-        log.info(apiResponse.getData().toString());
         ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())

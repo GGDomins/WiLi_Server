@@ -179,11 +179,12 @@ public class ProductController {
     @GetMapping("/random-feed")
     ResponseEntity<ApiResponse> randomFeed(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
-
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
+
+        ApiResponse apiResponse = new ApiResponse();
         try {
 
             String snsId = jwtTokenProvider.getUsersnsId(accessToken);
@@ -200,12 +201,9 @@ public class ProductController {
             Map_response.put("images", image_json);
             Map_response.put("posts", product_json);
 
-            ApiResponse apiResponse = new ApiResponse();
             apiResponse.success_random_feed(Map_response);
-
             return ResponseEntity.ok().body(apiResponse);
         } catch (NoSuchElementException e) {
-            ApiResponse apiResponse = new ApiResponse();
             apiResponse.failed_random_feed();
             return ResponseEntity.ok(apiResponse);
         }
@@ -213,13 +211,13 @@ public class ProductController {
 
     //검색 api
     @GetMapping("/search")
-    public ResponseEntity<?> searchPostOrMember(HttpServletRequest httpServletRequest, @RequestParam String query) throws IOException {
+    public ResponseEntity<ApiResponse> searchPostOrMember(HttpServletRequest httpServletRequest, @RequestParam String query) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
-
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
+        ApiResponse apiResponse = new ApiResponse();
         try {
             char firstLetter = query.charAt(0);
             if (firstLetter == '@') {
@@ -233,7 +231,8 @@ public class ProductController {
 
                 response.put("images", image_json);
                 response.put("posts", post_json);
-                return ResponseEntity.ok().body(response);
+                apiResponse.success_search_user(response);
+                return ResponseEntity.ok().body(apiResponse);
             } else {
                 SearchPageResponse response = productService.getPostResponseDtoFromProductName(query);
                 List<PostMainPageResponse> productList = response.getProduct().get("product");
@@ -246,19 +245,16 @@ public class ProductController {
                 Map<String, Object> Map_response = new HashMap<>();
                 Map_response.put("images", image_json);
                 Map_response.put("posts", product_json);
-                return ResponseEntity.ok().body(Map_response);
+                apiResponse.success_search_product(Map_response);
+                return ResponseEntity.ok().body(apiResponse);
             }
         } catch (NoSuchElementException e) {
-            ApiResponse apiResponse = new ApiResponse();
             apiResponse.failed_search_product();
             return ResponseEntity.ok(apiResponse);
-
         } catch (UsernameNotFoundException e) {
-            ApiResponse apiResponse = new ApiResponse();
             apiResponse.failed_search_user();
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
-            ApiResponse apiResponse = new ApiResponse();
             apiResponse.failed_search();
             return ResponseEntity.ok(apiResponse);
         }

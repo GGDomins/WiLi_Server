@@ -73,17 +73,16 @@ public class ProductController {
             List<String> imageJsonList = jsonService.changeByteListToJson(images);
             List<String> postJsonList = jsonService.changePostMainPageResponseDtoListToJson(postList);
 
-            response.put("message", "제품 있음");
             response.put("images", imageJsonList);
             response.put("posts", postJsonList);
 
             ApiResponse apiResponse = new ApiResponse();
-            apiResponse.success_post_add();
+            apiResponse.success_lookup_product(response);
 
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok().body(apiResponse);
         } catch (NoSuchElementException e) {
             ApiResponse apiResponse = new ApiResponse();
-            apiResponse.fail_post_add();
+            apiResponse.failed_lookup_product();
             return ResponseEntity.ok(apiResponse);
         }
     }

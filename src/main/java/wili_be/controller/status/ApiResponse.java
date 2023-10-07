@@ -120,6 +120,18 @@ public class ApiResponse {
         addNullData();
         addMessage("item upload failed");
     }
+    // GET /users/product
+    public void success_lookup_product(Map<String, Object> data) {
+        addStatus("true");
+        addData_WithOutTitle(data);
+        addMessage("items fetch success");
+    }
+
+    public void failed_lookup_product() {
+        addStatus("false");
+        addNullData();
+        addMessage("item fetch failed");
+    }
 
     // products/{PostId}
     public void success_post_lookup(Map<String, Object> data) {
@@ -165,6 +177,7 @@ public class ApiResponse {
         addNullData();
         addMessage("item fetch failed");
     }
+
 
     // /search?query
     public void success_search_product(Map<String, Object> data) {

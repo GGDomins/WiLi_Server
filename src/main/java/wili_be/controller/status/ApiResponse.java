@@ -13,24 +13,19 @@ public class ApiResponse {
     private Map<String, Object> data = new HashMap<>();
     private String message;
 
-    public ApiResponse(String status, String message, Object data) {
-        this.status = status;
-        this.message = message;
-        this.data.put("data", data);
-    }
 
     public void addStatus(String s) {
-        this.status = status;
+        this.status = s;
     }
     public void addMessage(String m) {
-        this.message = message;
+        this.message = m;
     }
 
-    public void addData_WithOutTitle(Object data) {
-        this.data.put("data", data);
+    public void addData_WithOutTitle(Map<String, Object> data) {
+        this.data = data;
     }
     public void addNullData() {
-        this.data.put("data", null);
+        this.data = null;
     }
 
 
@@ -60,7 +55,9 @@ public class ApiResponse {
     // kakao & naver callback
     public void success_oauth_login(Object memberInfo) {
         addStatus("true");
-        addData_WithOutTitle(memberInfo);
+        Map<String, Object> new_data = new HashMap<>();
+        new_data.put("member_info", memberInfo);
+        addData_WithOutTitle(new_data);
         addMessage("Login success");
     }
     public void fail_oauth_login() {
@@ -80,14 +77,18 @@ public class ApiResponse {
     public void success_user_getInfo(Object o) {
         addStatus("success");
         addMessage("user info look up success");
-        addData_WithOutTitle(o);
+        Map<String, Object> new_data = new HashMap<>();
+        new_data.put("member_Info", o);
+        addData_WithOutTitle(new_data);
     }
 
     // PATCH user/{snsId}
     public void success_user_editInfo(Object o) {
         addStatus("success");
         addMessage("user info edit success");
-        addData_WithOutTitle(o);
+        Map<String, Object> new_data = new HashMap<>();
+        new_data.put("member_Info", o);
+        addData_WithOutTitle(new_data);
     }
 
     //DELETE user/{snsId}
@@ -101,5 +102,4 @@ public class ApiResponse {
         addNullData();
         addMessage("withdraw failed");
     }
-
 }

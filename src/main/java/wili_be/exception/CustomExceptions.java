@@ -13,7 +13,7 @@ public class CustomExceptions{
     @Getter
     public static class CustomException extends RuntimeException  {
         private HttpStatus httpStatus;
-        private String info;
+        private Object info;
     }
     @Getter
     public static class ExpiredTokenException extends RuntimeException  {

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import wili_be.controller.status.ApiResponse;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -27,36 +28,38 @@ public class MemberController {
     private final TokenService tokenService;
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
+    private final ApiResponse apiResponse;
 
     //accessToken을 이용해서 로그인 여부를 판단함.
     @PostMapping("/users/auth")
-    ResponseEntity<Map<String,Object>> validateAccessToken(HttpServletRequest httpRequest) {
+    ResponseEntity<ApiResponse> validateAccessToken(HttpServletRequest httpRequest) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
         if (accessToken == null) {
             throw new NotLoggedInException();
         }
         tokenService.validateAccessToken(accessToken);
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
-        Map<String, Object> response = new HashMap<>();
-        response.put("snsId", snsId);
-        return ResponseEntity.ok().body(response);
+
+        apiResponse.success_user_auth(snsId);
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     //refreshToken을 이용해서 accessToken 재발급
     @PostMapping("/users/refresh-token")
-    ResponseEntity<String> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+    ResponseEntity<ApiResponse> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         if (refreshToken.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "refreshToken 없습니다.");
+            apiResponse.fail_user_refresh_Token();
+            throw new CustomException(HttpStatus.BAD_REQUEST, apiResponse);
         }
         String snsId = redisService.getValues(refreshToken);
         TokenDto newToken = tokenService.createTokensFromRefreshToken(snsId, refreshToken);
         ResponseCookie responseCookie = memberService.createHttpOnlyCookie(newToken.getRefreshToken());
         String new_accessToken = newToken.getAccessToken();
-
+        apiResponse.success_user_refresh_Token(snsId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .header("accessToken", new_accessToken)
-                .body("accessToken 생성 완료");
+                .body(apiResponse);
     }
 
     //accessToken을 블랙리스트 처리한 후, 로그아웃

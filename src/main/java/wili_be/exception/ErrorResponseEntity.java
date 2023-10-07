@@ -14,13 +14,12 @@ import static wili_be.exception.CustomExceptions.*;
 @Builder
 public class ErrorResponseEntity {
     private int status;
-    private String message;
+    private Object message;
 
     public static ResponseEntity<ErrorResponseEntity> toResponseEntity(CustomException e) {
         return ResponseEntity
                 .status(e.getHttpStatus())
                 .body(ErrorResponseEntity.builder()
-                        .status(e.getHttpStatus().value())
                         .message(e.getInfo())
                         .build());
     }

@@ -17,6 +17,7 @@ public class ApiResponse {
     public void addStatus(String s) {
         this.status = s;
     }
+
     public void addMessage(String m) {
         this.message = m;
     }
@@ -24,6 +25,7 @@ public class ApiResponse {
     public void addData_WithOutTitle(Map<String, Object> data) {
         this.data = data;
     }
+
     public void addNullData() {
         this.data = null;
     }
@@ -46,6 +48,7 @@ public class ApiResponse {
         addData_WithOutTitle(new_data);
         addMessage("token refresh success");
     }
+
     public void fail_user_refresh_Token() {
         addStatus("fail");
         addNullData();
@@ -60,6 +63,7 @@ public class ApiResponse {
         addData_WithOutTitle(new_data);
         addMessage("Login success");
     }
+
     public void fail_oauth_login() {
         addStatus("false");
         addMessage("Login failed");
@@ -97,9 +101,97 @@ public class ApiResponse {
         addNullData();
         addMessage("withdraw success");
     }
+
     public void fail_user_delete() {
         addStatus("fail");
         addNullData();
         addMessage("withdraw failed");
+    }
+
+    // post/add
+    public void success_post_add() {
+        addStatus("success");
+        addNullData();
+        addMessage("item upload success");
+    }
+
+    public void fail_post_add() {
+        addStatus("false");
+        addNullData();
+        addMessage("item upload failed");
+    }
+
+    // products/{PostId}
+    public void success_post_lookup(Map<String, Object> data) {
+        addStatus("true");
+        addMessage("item look up success");
+        addData_WithOutTitle(data);
+    }
+
+    // PATCH /products/{ID}
+    public void success_post_edit() {
+        addStatus("true");
+        addNullData();
+        addMessage("item edit success");
+    }
+
+    public void failed_post_edit() {
+        addStatus("false");
+        addNullData();
+        addMessage("item edit failed");
+    }
+
+    //DELETE /products/{id}
+    public void success_post_delete() {
+        addStatus("true");
+        addNullData();
+        addMessage("item delete success");
+    }
+    public void failed_post_delete() {
+        addStatus("false");
+        addNullData();
+        addMessage("item delete failed");
+    }
+
+    // /random-feed
+    public void success_random_feed(Map<String, Object> data) {
+        addStatus("true");
+        addData_WithOutTitle(data);
+        addMessage("items fetch success");
+    }
+
+    public void failed_random_feed() {
+        addStatus("false");
+        addNullData();
+        addMessage("item fetch failed");
+    }
+
+    // /search?query
+    public void success_search_product(Map<String, Object> data) {
+        addStatus("true");
+        addData_WithOutTitle(data);
+        addMessage("search success");
+    }
+    public void success_search_user(Map<String, Object> data) {
+        addStatus("true");
+        addData_WithOutTitle(data);
+        addMessage("search success");
+    }
+
+    public void failed_search_product() {
+        addStatus("false");
+        addNullData();
+        addMessage("no product found");
+    }
+    public void failed_search_user() {
+        addStatus("false");
+        addNullData();
+        addMessage("no user found");
+    }
+
+    public void failed_search() {
+        addStatus("false");
+        addNullData();
+        addMessage("search failed");
     }
 }

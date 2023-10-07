@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import wili_be.controller.status.ApiResponse;
 import wili_be.entity.Member;
 import wili_be.entity.Post;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -33,7 +34,7 @@ public class ProductController {
 
     //상품 등록
     @PostMapping("/products/add")
-    public ResponseEntity<String> addProduct(
+    public ResponseEntity<ApiResponse> addProduct(
             @RequestParam("file") MultipartFile file,
             @RequestParam("productInfo") String productInfoJson,
             HttpServletRequest httpServletRequest) {
@@ -45,7 +46,10 @@ public class ProductController {
         tokenService.validateAccessToken(accessToken);
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         productService.addProduct(file, productInfoJson, snsId);
-        return ResponseEntity.ok("Product 저장 성공.");
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_post_add();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // user의 상품조회
@@ -73,10 +77,14 @@ public class ProductController {
             response.put("images", imageJsonList);
             response.put("posts", postJsonList);
 
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.success_post_add();
+
             return ResponseEntity.ok().body(response);
         } catch (NoSuchElementException e) {
-            // 4. 예외 처리 및 응답 생성
-            throw new NoProductException();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.fail_post_add();
+            return ResponseEntity.ok(apiResponse);
         }
     }
 
@@ -98,15 +106,18 @@ public class ProductController {
         response.put("image", JsonImage);
         response.put("post", JsonPost);
 
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_post_lookup(response);
+
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
         if (productService.validateUserFromPostAndSnsId(snsId, PostId)) {
             return ResponseEntity.ok()
                     .header("isMyPost", String.valueOf(true))
-                    .body(response);
+                    .body(apiResponse);
         } else {
             return ResponseEntity.ok()
                     .header("isMyPost", String.valueOf(false))
-                    .body(response);
+                    .body(apiResponse);
         }
     }
 
@@ -114,7 +125,7 @@ public class ProductController {
     @Transactional
     @PatchMapping("/products/{PostId}")
         // http method가 다르면 uri는 겹쳐도 된다.
-    ResponseEntity<String> updateProduct(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
+    ResponseEntity<ApiResponse> updateProduct(HttpServletRequest httpRequest, @PathVariable Long PostId, @RequestBody PostUpdateResponseDto postUpdateDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -126,16 +137,20 @@ public class ProductController {
         Member member = post.getMember();
         if (member.getSnsId().equals(snsId)) {
             PostResponseDto updatePost = productService.updatePost(PostId, postUpdateDto);
-            String jsonPost = jsonService.changePostResponseDtoToJson(updatePost);
-            return ResponseEntity.ok(jsonPost);
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.success_post_edit();
+            return ResponseEntity.ok(apiResponse);
         }
-        throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.failed_post_edit();
+        throw new CustomException(HttpStatus.BAD_REQUEST,apiResponse);
     }
 
     //상품 삭제
     @Transactional
     @DeleteMapping("/products/{PostId}")
-    ResponseEntity<String> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {
+    ResponseEntity<ApiResponse> removeProduct(HttpServletRequest httpRequest, @PathVariable Long PostId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -146,20 +161,23 @@ public class ProductController {
         Post post = productService.getPostFromId(PostId);
         Member member = post.getMember();
 
+        ApiResponse apiResponse = new ApiResponse();
         if (member.getSnsId().equals(snsId)) {
             productService.deletePostByPostId(PostId);
             amazonS3Service.deleteImageByKey(post.getThumbnailImageKey());
             amazonS3Service.deleteImageByKey(post.getImageKey());
+            apiResponse.success_post_delete();
             return ResponseEntity.ok()
-                    .body("delete 성공!");
+                    .body(apiResponse);
         } else {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "다른 사용자가 product를 수정하려고 시도합니다.");
+            apiResponse.failed_post_delete();
+            throw new CustomException(HttpStatus.BAD_REQUEST, apiResponse);
         }
     }
 
     //랜덤 피드
     @GetMapping("/random-feed")
-    ResponseEntity<?> randomFeed(HttpServletRequest httpRequest) throws IOException {
+    ResponseEntity<ApiResponse> randomFeed(HttpServletRequest httpRequest) throws IOException {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -179,12 +197,17 @@ public class ProductController {
             List<String> product_json = jsonService.changePostMainPageResponseDtoListToJson(posts);
 
             Map<String, Object> Map_response = new HashMap<>();
-            Map_response.put("message", "제품 있음");
             Map_response.put("images", image_json);
             Map_response.put("posts", product_json);
-            return ResponseEntity.ok().body(Map_response);
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.success_random_feed(Map_response);
+
+            return ResponseEntity.ok().body(apiResponse);
         } catch (NoSuchElementException e) {
-            throw new NoProductException();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.failed_random_feed();
+            return ResponseEntity.ok(apiResponse);
         }
     }
 
@@ -208,7 +231,6 @@ public class ProductController {
                 List<String> image_json = jsonService.changeByteListToJson(images);
                 List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
 
-                response.put("message", "제품 있음");
                 response.put("images", image_json);
                 response.put("posts", post_json);
                 return ResponseEntity.ok().body(response);
@@ -222,15 +244,23 @@ public class ProductController {
                 List<String> image_json = jsonService.changeByteListToJson(images);
 
                 Map<String, Object> Map_response = new HashMap<>();
-                Map_response.put("message", "제품 있음");
                 Map_response.put("images", image_json);
                 Map_response.put("posts", product_json);
                 return ResponseEntity.ok().body(Map_response);
             }
         } catch (NoSuchElementException e) {
-            throw new NoProductException();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.failed_search_product();
+            return ResponseEntity.ok(apiResponse);
+
         } catch (UsernameNotFoundException e) {
-            throw new NoUserException();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.failed_search_user();
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.failed_search();
+            return ResponseEntity.ok(apiResponse);
         }
     }
 }

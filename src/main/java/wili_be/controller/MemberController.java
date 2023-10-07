@@ -67,15 +67,17 @@ public class MemberController {
 
     //accessToken을 블랙리스트 처리한 후, 로그아웃
     @PostMapping("/users/logout")
-    ResponseEntity<String> logout(HttpServletRequest request) {
+    ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
         redisService.setAccessTokenBlackList(accessToken);
-        return ResponseEntity.ok("set" + accessToken + "blackList");
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_user_logout();
+        return ResponseEntity.ok(apiResponse);
     }
 
     //user 정보 조회
     @GetMapping("/users/{snsId}")
-    ResponseEntity<MemberResponseDto> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
+    ResponseEntity<ApiResponse> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -84,7 +86,10 @@ public class MemberController {
         tokenService.validateAccessToken(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        return ResponseEntity.ok().body(memberResponseDto);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_user_getInfo(memberResponseDto);
+
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     //추가 회원가입을 할 때 닉네임 중복 여부 검사
@@ -105,7 +110,7 @@ public class MemberController {
 
     //user 정보 수정
     @PatchMapping("/users/{snsId}")
-    public ResponseEntity<MemberResponseDto> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
+    public ResponseEntity<ApiResponse> updateMember(HttpServletRequest httpRequest, @PathVariable String snsId, @RequestBody MemberUpdateRequestDto memberRequestDto) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -113,12 +118,16 @@ public class MemberController {
         }
         tokenService.validateAccessToken(accessToken);
         MemberResponseDto memberResponseDto = memberService.updateMember(snsId, memberRequestDto);
-        return ResponseEntity.ok().body(memberResponseDto);
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_user_editInfo(memberResponseDto);
+
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     //user 탈퇴
     @DeleteMapping("/users/{snsId}")
-    public ResponseEntity<String> removeMember(HttpServletRequest httpServletRequest, @PathVariable String snsId) {
+    public ResponseEntity<ApiResponse> removeMember(HttpServletRequest httpServletRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpServletRequest);
 
         if (accessToken == null) {
@@ -132,9 +141,15 @@ public class MemberController {
             List<String> thumbnailImageKeys = productService.getThumbnailImagesKeysByMember(snsId);
             amazonS3Service.deleteImagesByKeys(imageKeys);
             amazonS3Service.deleteImagesByKeys(thumbnailImageKeys);
-            return ResponseEntity.ok().body(snsId + "님이 탈퇴하셨습니다.");
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.success_user_delete();
+
+            return ResponseEntity.ok().body(apiResponse);
         } catch (NoSuchElementException e) {
-            throw new CustomException(HttpStatus.OK, "image가 존재하지 않습니다.");
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.fail_user_delete();
+            throw new CustomException(HttpStatus.OK, apiResponse);
         }
     }
 }

@@ -26,6 +26,7 @@ public class Post {
     private String category;
     private String productPrice;
     private String description;
+    @Column(length = 1000)
     private String link;
     private String imageKey;
     private String thumbnailImageKey;

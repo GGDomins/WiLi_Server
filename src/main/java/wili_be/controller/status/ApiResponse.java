@@ -9,21 +9,21 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 public class ApiResponse {
-    private Map<String, Object> status = new HashMap<>();
+    private String status;
     private Map<String, Object> data = new HashMap<>();
-    private Map<String, Object> message = new HashMap<>();
+    private String message;
 
     public ApiResponse(String status, String message, Object data) {
-        this.status.put("status", status);
-        this.message.put("message", message);
+        this.status = status;
+        this.message = message;
         this.data.put("data", data);
     }
 
     public void addStatus(String s) {
-        this.status.put("status", s);
+        this.status = status;
     }
     public void addMessage(String m) {
-        this.message.put("message", m);
+        this.message = message;
     }
 
     public void addData_WithOutTitle(Object data) {
@@ -67,6 +67,39 @@ public class ApiResponse {
         addStatus("false");
         addMessage("Login failed");
         addNullData();
+    }
+
+    // user/logout
+    public void success_user_logout() {
+        addStatus("success");
+        addMessage("Logout success");
+        addNullData();
+    }
+
+    // /users/{snsId}
+    public void success_user_getInfo(Object o) {
+        addStatus("success");
+        addMessage("user info look up success");
+        addData_WithOutTitle(o);
+    }
+
+    // PATCH user/{snsId}
+    public void success_user_editInfo(Object o) {
+        addStatus("success");
+        addMessage("user info edit success");
+        addData_WithOutTitle(o);
+    }
+
+    //DELETE user/{snsId}
+    public void success_user_delete() {
+        addStatus("success");
+        addNullData();
+        addMessage("withdraw success");
+    }
+    public void fail_user_delete() {
+        addStatus("fail");
+        addNullData();
+        addMessage("withdraw failed");
     }
 
 }

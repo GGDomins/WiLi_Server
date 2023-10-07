@@ -49,7 +49,8 @@ public class OAuthController {
         oauthToken = naverLoginBO.getAccessToken(code, state);
         SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
-        ApiResponse apiResponse = new ApiResponse("true", "Login success", memberDto);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_oauth_login(memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {
@@ -81,7 +82,8 @@ public class OAuthController {
         oauthToken = kakaoLoginBO.getAccessToken(code);
         SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
-        ApiResponse apiResponse = new ApiResponse("true", "Login success", memberDto);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_oauth_login(memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {
@@ -109,6 +111,7 @@ public class OAuthController {
         String accessToken = tokenDto.getAccessToken();
         String refreshToken = tokenDto.getRefreshToken();
         ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .header("accessToken", accessToken)

@@ -1,19 +1,23 @@
 package wili_be.controller.status;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+@Getter
+@NoArgsConstructor
 public class ApiResponse {
     private Map<String, Object> status = new HashMap<>();
     private Map<String, Object> data = new HashMap<>();
     private Map<String, Object> message = new HashMap<>();
+
+    public ApiResponse(String status, String message, Object data) {
+        this.status.put("status", status);
+        this.message.put("message", message);
+        this.data.put("data", data);
+    }
 
     public void addStatus(String s) {
         this.status.put("status", s);
@@ -22,11 +26,6 @@ public class ApiResponse {
         this.message.put("message", m);
     }
 
-    public void addData(String title, Object data) {
-        Map<String, Object> new_data = new HashMap<>();
-        new_data.put(title, data);
-        this.data.put("data", new_data);
-    }
     public void addData_WithOutTitle(Object data) {
         this.data.put("data", data);
     }
@@ -34,12 +33,13 @@ public class ApiResponse {
         this.data.put("data", null);
     }
 
+
     //  /user/auth
     public void success_user_auth(String snsId) {
         addStatus("true");
         Map<String, Object> new_data = new HashMap<>();
         new_data.put("snsId", snsId);
-        addData("data", new_data);
+        addData_WithOutTitle(new_data);
         addMessage("Authentication success");
     }
 
@@ -48,12 +48,12 @@ public class ApiResponse {
         addStatus("true");
         Map<String, Object> new_data = new HashMap<>();
         new_data.put("snsId", snsId);
-        addData("data",new_data);
+        addData_WithOutTitle(new_data);
         addMessage("token refresh success");
     }
     public void fail_user_refresh_Token() {
         addStatus("fail");
-        addData("data",null);
+        addNullData();
         addMessage("token refresh failed");
     }
 
@@ -68,4 +68,5 @@ public class ApiResponse {
         addMessage("Login failed");
         addNullData();
     }
+
 }

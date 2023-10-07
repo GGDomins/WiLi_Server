@@ -28,7 +28,6 @@ public class MemberController {
     private final TokenService tokenService;
     private final AmazonS3Service amazonS3Service;
     private final ProductService productService;
-    private final ApiResponse apiResponse;
 
     //accessToken을 이용해서 로그인 여부를 판단함.
     @PostMapping("/users/auth")
@@ -40,6 +39,7 @@ public class MemberController {
         tokenService.validateAccessToken(accessToken);
         String snsId = jwtTokenProvider.getUsersnsId(accessToken);
 
+        ApiResponse apiResponse = new ApiResponse();
         apiResponse.success_user_auth(snsId);
         return ResponseEntity.ok().body(apiResponse);
     }
@@ -48,6 +48,7 @@ public class MemberController {
     @PostMapping("/users/refresh-token")
     ResponseEntity<ApiResponse> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         if (refreshToken.isEmpty()) {
+            ApiResponse apiResponse = new ApiResponse();
             apiResponse.fail_user_refresh_Token();
             throw new CustomException(HttpStatus.BAD_REQUEST, apiResponse);
         }
@@ -55,6 +56,8 @@ public class MemberController {
         TokenDto newToken = tokenService.createTokensFromRefreshToken(snsId, refreshToken);
         ResponseCookie responseCookie = memberService.createHttpOnlyCookie(newToken.getRefreshToken());
         String new_accessToken = newToken.getAccessToken();
+
+        ApiResponse apiResponse = new ApiResponse();
         apiResponse.success_user_refresh_Token(snsId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())

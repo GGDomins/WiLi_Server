@@ -41,7 +41,6 @@ public class OAuthController {
     private final TokenService tokenService;
     private final NaverLoginBO naverLoginBO;
     private final KakaoLoginBO kakaoLoginBO;
-    private final ApiResponse apiResponse;
 
     //naver Oauth 로그인
     @RequestMapping(value = "/naver/callback", method = {RequestMethod.GET, RequestMethod.POST})
@@ -50,7 +49,7 @@ public class OAuthController {
         oauthToken = naverLoginBO.getAccessToken(code, state);
         SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
-        apiResponse.success_oauth_login(memberDto);
+        ApiResponse apiResponse = new ApiResponse("true", "Login success", memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {
@@ -63,6 +62,11 @@ public class OAuthController {
         String accessToken = tokenDto.getAccessToken();
         String refreshToken = tokenDto.getRefreshToken();
 
+        log.info("apiResponse값 확인");
+        log.info(apiResponse.toString());
+        log.info(apiResponse.getStatus().toString());
+        log.info(apiResponse.getMessage().toString());
+        log.info(apiResponse.getData().toString());
         ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
@@ -77,7 +81,7 @@ public class OAuthController {
         oauthToken = kakaoLoginBO.getAccessToken(code);
         SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
-        apiResponse.success_oauth_login(memberDto);
+        ApiResponse apiResponse = new ApiResponse("true", "Login success", memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {

@@ -77,15 +77,6 @@ public class ApiResponse {
         addNullData();
     }
 
-    // /users/{snsId}
-    public void success_user_getInfo(Object o) {
-        addStatus("success");
-        addMessage("user info look up success");
-        Map<String, Object> new_data = new HashMap<>();
-        new_data.put("member_Info", o);
-        addData_WithOutTitle(new_data);
-    }
-
     // PATCH user/{snsId}
     public void success_user_editInfo(Object o) {
         addStatus("success");

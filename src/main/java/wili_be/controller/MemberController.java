@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import wili_be.controller.status.ApiResponse;
+import wili_be.controller.status.UserInfoApiResponse;
 import wili_be.dto.TokenDto;
 import wili_be.entity.Member;
 import wili_be.security.JWT.JwtTokenProvider;
@@ -77,7 +78,7 @@ public class MemberController {
 
     //user 정보 조회
     @GetMapping("/users/{snsId}")
-    ResponseEntity<ApiResponse> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
+    ResponseEntity<UserInfoApiResponse> getMemberInfo(HttpServletRequest httpRequest, @PathVariable String snsId) {
         String accessToken = jwtTokenProvider.resolveToken(httpRequest);
 
         if (accessToken == null) {
@@ -86,7 +87,7 @@ public class MemberController {
         tokenService.validateAccessToken(accessToken);
         Member member = memberService.findMemberById(snsId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "멤버가 존재하지 않습니다."));
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        ApiResponse apiResponse = new ApiResponse();
+        UserInfoApiResponse apiResponse = new UserInfoApiResponse();
         apiResponse.success_user_getInfo(memberResponseDto);
 
         return ResponseEntity.ok().body(apiResponse);

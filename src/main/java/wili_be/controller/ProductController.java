@@ -74,7 +74,7 @@ public class ProductController {
             List<String> postJsonList = jsonService.changePostMainPageResponseDtoListToJson(postList);
 
             response.put("images", imageJsonList);
-            response.put("posts", postJsonList);
+            response.put("items", postJsonList);
 
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.success_lookup_product(response);

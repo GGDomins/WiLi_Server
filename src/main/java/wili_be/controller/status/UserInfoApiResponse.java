@@ -27,8 +27,13 @@ public class UserInfoApiResponse {
     // /users/{snsId}
 
     public void success_user_getInfo(Object o) {
-        addStatus("success");
+        addStatus("true");
         addMessage("user info look up success");
+        addData(o);
+    }
+    public void success_user_Login(Object o) {
+        addStatus("true");
+        addMessage("Login success");
         addData(o);
     }
 }

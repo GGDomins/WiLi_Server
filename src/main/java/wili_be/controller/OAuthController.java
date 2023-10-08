@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.client.HttpClientErrorException;
 import wili_be.controller.status.ApiResponse;
+import wili_be.controller.status.UserInfoApiResponse;
 import wili_be.dto.TokenDto;
 
 import wili_be.entity.LoginProvider;
@@ -44,13 +45,13 @@ public class OAuthController {
 
     //naver Oauth 로그인
     @RequestMapping(value = "/naver/callback", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<ApiResponse> callback(@RequestParam String code, @RequestParam String state) throws IOException {
+    public ResponseEntity<UserInfoApiResponse> callback(@RequestParam String code, @RequestParam String state) throws IOException {
         OAuth2AccessToken oauthToken;
         oauthToken = naverLoginBO.getAccessToken(code, state);
         SocialMemberInfoDto userInfo = naverLoginBO.getUserProfile(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.NAVER);
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.success_oauth_login(memberDto);
+        UserInfoApiResponse apiResponse = new UserInfoApiResponse();
+        apiResponse.success_user_getInfo(memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {
@@ -72,13 +73,13 @@ public class OAuthController {
 
     //kakao Oauth 로그인
     @RequestMapping(value = "/kakao/callback", method = {RequestMethod.POST, RequestMethod.GET})
-    public ResponseEntity<ApiResponse> kakaoLogin(@RequestParam("code") String code) throws IOException {
+    public ResponseEntity<UserInfoApiResponse> kakaoLogin(@RequestParam("code") String code) throws IOException {
         OAuth2AccessToken oauthToken;
         oauthToken = kakaoLoginBO.getAccessToken(code);
         SocialMemberInfoDto userInfo = kakaoLoginBO.getKakaoUserInfo(oauthToken);
         Member_info_Dto memberDto = new Member_info_Dto(userInfo, LoginProvider.KAKAO);
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.success_oauth_login(memberDto);
+        UserInfoApiResponse apiResponse = new UserInfoApiResponse();
+        apiResponse.success_user_getInfo(memberDto);
 
         Optional<Member> memberOptional = memberService.findMemberById(memberDto.getSnsId());
         if (memberOptional.isEmpty()) {

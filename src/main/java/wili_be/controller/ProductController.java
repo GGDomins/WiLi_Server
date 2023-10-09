@@ -198,7 +198,7 @@ public class ProductController {
 
             Map<String, Object> Map_response = new HashMap<>();
             Map_response.put("images", image_json);
-            Map_response.put("posts", product_json);
+            Map_response.put("items", product_json);
 
             apiResponse.success_random_feed(Map_response);
             return ResponseEntity.ok().body(apiResponse);
@@ -229,7 +229,7 @@ public class ProductController {
                 List<String> post_json = jsonService.changePostMainPageResponseDtoListToJson(postList);
 
                 response.put("images", image_json);
-                response.put("posts", post_json);
+                response.put("items", post_json);
                 apiResponse.success_search_user(response);
                 return ResponseEntity.ok().body(apiResponse);
             } else {
@@ -243,7 +243,7 @@ public class ProductController {
 
                 Map<String, Object> Map_response = new HashMap<>();
                 Map_response.put("images", image_json);
-                Map_response.put("posts", product_json);
+                Map_response.put("items", product_json);
                 apiResponse.success_search_product(Map_response);
                 return ResponseEntity.ok().body(apiResponse);
             }

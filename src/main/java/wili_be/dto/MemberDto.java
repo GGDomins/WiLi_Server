@@ -109,6 +109,7 @@ public class MemberDto {
         private String username;
         private String birthDay;
         private String favorites;
+        private String snsId;
 
         public Member of() {
             return Member.builder()
@@ -117,6 +118,7 @@ public class MemberDto {
                     .username(username)
                     .birthday(birthDay)
                     .favorites(favorites)
+                    .snsId(snsId)
                     .build();
         }
     }

@@ -54,8 +54,23 @@ public class MemberController {
         return ResponseEntity.ok()
                 .body(apiResponse);
     }
-//    @GetMapping("/users/normal")
 
+    @GetMapping("/users/normal")
+    ResponseEntity<?> userNormalLogin(@RequestBody MemberLoginDto memberLoginDto) {
+        Member member = memberService.loginMember(memberLoginDto);
+        TokenDto tokenDto = tokenService.createTokens(member.getSnsId());
+        String accessToken = tokenDto.getAccessToken();
+        String refreshToken = tokenDto.getRefreshToken();
+
+        UserInfoApiResponse apiResponse = new UserInfoApiResponse();
+        apiResponse.success_user_getInfo(memberLoginDto);
+
+        ResponseCookie responseCookie = memberService.createHttpOnlyCookie(refreshToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .header("accessToken", accessToken)
+                .body(apiResponse);
+    }
     //refreshToken을 이용해서 accessToken 재발급
     @PostMapping("/users/refresh-token")
     ResponseEntity<ApiResponse> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {

@@ -1,27 +1,19 @@
 package wili_be.service.impl;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wili_be.dto.MemberDto;
-import wili_be.dto.MemberDto.Member_info_Dto;
-import wili_be.dto.PostDto;
 import wili_be.entity.Member;
-import wili_be.entity.Post;
-import wili_be.exception.CustomExceptions;
 import wili_be.repository.MemberRepository;
-import wili_be.repository.ProductRepository;
 import wili_be.service.MemberService;
 
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static wili_be.dto.MemberDto.*;
@@ -31,6 +23,7 @@ import static wili_be.exception.CustomExceptions.*;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements UserDetailsService, MemberService {
     private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     @Override
@@ -76,6 +69,16 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     public void saveMember(MemberSignupDto memberSignupDto) {
         Member member = memberSignupDto.of();
         memberRepository.save(member);
+    }
+
+    @Override
+    public Member loginMember(MemberLoginDto memberLoginDto) {
+        Member member = memberRepository.findMemberByEmail(memberLoginDto.getEmail())
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "ID가 존재하지 않습니다."));
+        if (!bCryptPasswordEncoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다.");
+        }
+        return member;
     }
 
     @Transactional

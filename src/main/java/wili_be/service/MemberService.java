@@ -26,4 +26,6 @@ public interface MemberService{
 
     void chechMemberIdExist(MemberSignupDto memberSignupDto);
     void saveMember(MemberSignupDto memberSignupDto);
+
+    Member loginMember(MemberLoginDto memberLoginDto);
 }

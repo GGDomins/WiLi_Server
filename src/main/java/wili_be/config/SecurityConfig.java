@@ -26,9 +26,6 @@ import java.util.Collections;
 @Configuration
 public class SecurityConfig{
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate redisTemplate;
-
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

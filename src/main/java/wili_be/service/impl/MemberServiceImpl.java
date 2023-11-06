@@ -67,7 +67,10 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
 
     @Override
     public void saveMember(MemberSignupDto memberSignupDto) {
-        Member member = memberSignupDto.of();
+        String encodePassword = bCryptPasswordEncoder
+                .encode(memberSignupDto.getPassword());
+
+        Member member = memberSignupDto.of(encodePassword);
         memberRepository.save(member);
     }
 

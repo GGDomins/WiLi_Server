@@ -110,8 +110,9 @@ public class MemberDto {
         private String birthDay;
         private String favorites;
         private String snsId;
+        private String password;
 
-        public Member of() {
+        public Member of(String passwordEncode) {
             return Member.builder()
                     .name(name)
                     .email(email)
@@ -119,6 +120,7 @@ public class MemberDto {
                     .birthday(birthDay)
                     .favorites(favorites)
                     .snsId(snsId)
+                    .password(passwordEncode)
                     .build();
         }
     }

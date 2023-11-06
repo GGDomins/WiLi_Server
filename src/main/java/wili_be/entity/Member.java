@@ -27,6 +27,7 @@ public class Member implements UserDetails {
     private String email;
     private String snsId;
     private String favorites;
+    private String password;
     @Enumerated(EnumType.STRING)
     private LoginProvider loginProvider;
     private boolean isBan;
@@ -46,7 +47,7 @@ public class Member implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override

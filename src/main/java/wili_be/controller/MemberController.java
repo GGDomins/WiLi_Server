@@ -55,7 +55,7 @@ public class MemberController {
                 .body(apiResponse);
     }
 
-    @GetMapping("/users/normal-login")
+    @PostMapping("/users/normal-login")
     ResponseEntity<?> userNormalLogin(@RequestBody MemberLoginDto memberLoginDto) {
         Member member = memberService.loginMember(memberLoginDto);
         TokenDto tokenDto = tokenService.createTokens(member.getSnsId());

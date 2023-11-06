@@ -99,4 +99,25 @@ public class MemberDto {
             this.favorites = member.getFavorites();
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberSignupDto {
+        private String name;
+        private String email;
+        private String username;
+        private String birthDay;
+        private String favorites;
+
+        public Member of() {
+            return Member.builder()
+                    .name(name)
+                    .email(email)
+                    .username(username)
+                    .birthday(birthDay)
+                    .favorites(favorites)
+                    .build();
+        }
+    }
 }

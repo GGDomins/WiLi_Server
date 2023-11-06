@@ -23,4 +23,7 @@ public interface MemberService{
     MemberResponseDto updateMember(String snsId, MemberUpdateRequestDto memberRequestDto);
     boolean validateExistingMember(String username);
     Member findMemberByMemberName(String username);
-    }
+
+    void chechMemberIdExist(MemberSignupDto memberSignupDto);
+    void saveMember(MemberSignupDto memberSignupDto);
+}

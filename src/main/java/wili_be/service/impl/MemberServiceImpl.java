@@ -64,6 +64,20 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         return member;
     }
 
+    @Override
+    public void chechMemberIdExist(MemberSignupDto memberSignupDto) {
+        Optional<Member> member = memberRepository.findMemberByEmail(memberSignupDto.getEmail());
+        if (member.isPresent()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "이미 동일한 email이 존재합니다.");
+        }
+    }
+
+    @Override
+    public void saveMember(MemberSignupDto memberSignupDto) {
+        Member member = memberSignupDto.of();
+        memberRepository.save(member);
+    }
+
     @Transactional
     @Override
     public void removeMember(String snsId) {

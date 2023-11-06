@@ -40,6 +40,13 @@ public class ApiResponse {
         addMessage("Authentication success");
     }
 
+    //  /users/normal-signup
+    public void success_user_signupForm() {
+        addStatus("true");
+        addNullData();
+        addMessage("signup success");
+    }
+
     //  /user/refresh-token
     public void success_user_refresh_Token(String snsId) {
         addStatus("true");

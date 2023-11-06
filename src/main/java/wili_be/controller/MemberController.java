@@ -45,6 +45,16 @@ public class MemberController {
         return ResponseEntity.ok().body(apiResponse);
     }
 
+    @PostMapping("/users/normal-login")
+    ResponseEntity<?> userFormLogin(@RequestBody MemberSignupDto memberSignupDto) {
+        memberService.chechMemberIdExist(memberSignupDto);
+        memberService.saveMember(memberSignupDto);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.success_user_signupForm();
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
     //refreshToken을 이용해서 accessToken 재발급
     @PostMapping("/users/refresh-token")
     ResponseEntity<ApiResponse> validateRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
